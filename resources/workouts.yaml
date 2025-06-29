@@ -1,0 +1,49 @@
+workouts:
+  - name: Bench Press
+    pageIndex: 22
+    pageNumber: 20
+  - name: Incline Bench Press
+    pageIndex: 23
+    pageNumber: 21
+  - name: Lateral Shoulder Raise
+    pageIndex: 26
+    pageNumber: 24
+  - name: Seated Shoulder Press
+    pageIndex: 27
+    pageNumber: 25
+  - name: Standing Shoulder Pullover
+    pageIndex: 32
+    pageNumber: 30
+  - name: Seated Lat Rows
+    pageIndex: 35
+    pageNumber: 33
+  - name: Seated Lat Pulldowns
+    pageIndex: 38
+    pageNumber: 36
+  - name: Biceps Curl
+    pageIndex: 43
+    pageNumber: 41
+  - name: Triceps Pushdown
+    pageIndex: 39
+    pageNumber: 37
+  - name: Triceps Extension
+    pageIndex: 40
+    pageNumber: 38
+  - name: Leg Extension & Squats
+    pageIndex: 50
+    pageNumber: 48
+  - name: Standing Hip Extension
+    pageIndex: 51
+    pageNumber: 49
+  - name: Calf Raise
+    pageIndex: 55
+    pageNumber: 53
+  - name: Seated Abdominal Crunch
+    pageIndex: 48
+    pageNumber: 46
+  - name: Trunk Rotation
+    pageIndex: 48
+    pageNumber: 46
+  - name: Standing Low Back Extension
+    pageIndex: 36
+    pageNumber: 34

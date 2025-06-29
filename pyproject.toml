@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "workout-plan"
+version = "0.1.0"
+description = ""
+authors = ["Robert Kraig <robertkraig@gmail.com>"]
+readme = "README.md"
+
+[[tool.poetry.packages]]
+include = "workout_exporter"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+pypdf2 = "^3.0.1"
+pyyaml = "^6.0"
+reportlab = "^4.0.0"
+markdown2 = "^2.4.13"
+weasyprint = "^61.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
