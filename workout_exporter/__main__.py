@@ -47,10 +47,12 @@ def markdown_to_pdf_bytes(md_path):
         os.remove(pdf_path)
     return pdf_bytes
 
-def extract_workout_pages(input_pdf: str, output_pdf: str, yaml_path: str = "resources/workouts.yaml", md_path: str = None):
+def extract_workout_pages(input_pdf: str, output_pdf: str, yaml_path: str = "resources/config.yaml", md_path: str = None):
     # Read workout pages from YAML
     with open(yaml_path, 'r') as f:
-        workouts = yaml.safe_load(f)['workouts']
+        config = yaml.safe_load(f)
+        workouts = config.get('pages', [])
+        append_first_page = config.get('appendFirstPage', None)
     # Use only unique pageIndex values for extraction
     seen = set()
     exercise_pages = []
@@ -64,6 +66,8 @@ def extract_workout_pages(input_pdf: str, output_pdf: str, yaml_path: str = "res
     writer = PdfWriter()
 
     # If a markdown file is provided, prepend its pages
+    if md_path is None and append_first_page:
+        md_path = os.path.join(os.path.dirname(yaml_path), append_first_page)
     if md_path:
         # Convert markdown to PDF bytes
         md_pdf_bytes = markdown_to_pdf_bytes(md_path)
@@ -82,15 +86,33 @@ def extract_workout_pages(input_pdf: str, output_pdf: str, yaml_path: str = "res
 
 if __name__ == "__main__":
     import argparse
+    # Load config.yaml for dynamic defaults
+    import os
+    import yaml
+    config_path = "resources/config.yaml"
+    config = {}
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+    default_input = config.get('file')
+    default_output = config.get('output')
+    default_markdown = os.path.join(os.path.dirname(config_path), config.get('appendFirstPage', "workout_plan.md"))
+
     parser = argparse.ArgumentParser(description="Export workout pages and prepend Markdown intro.")
-    parser.add_argument('--input', default="resources/BFX.Xceed.Global.OM.EN.pdf", help="Input PDF file")
-    parser.add_argument('--output', default="output/Bowflex_Workout_Booklet.pdf", help="Output PDF file")
-    parser.add_argument('--yaml', default="resources/workouts.yaml", help="YAML file with workout pages")
-    parser.add_argument('--markdown', default="resources/workout_plan.md", help="Markdown file to prepend (default: resources/workout_plan.md, will auto-detect in resources/ if not set)")
+    parser.add_argument('--input', default=default_input, help=f"Input PDF file (default from config.yaml: {default_input})")
+    parser.add_argument('--output', default=default_output, help=f"Output PDF file (default from config.yaml: {default_output})")
+    parser.add_argument('--yaml', default=config_path, help="YAML file with workout pages")
+    parser.add_argument('--markdown', default=default_markdown, help=f"Markdown file to prepend (default from config.yaml: {default_markdown})")
     args = parser.parse_args()
 
-    # Auto-detect markdown file in resources if not set
+    # If --markdown is not set, use appendFirstPage from YAML config
     md_file = args.markdown
+    if md_file is None:
+        with open(args.yaml, 'r') as f:
+            config = yaml.safe_load(f)
+            append_first_page = config.get('appendFirstPage', None)
+            if append_first_page:
+                md_file = os.path.join(os.path.dirname(args.yaml), append_first_page)
     if md_file is None:
         import glob
         md_candidates = glob.glob("resources/*.md")
@@ -98,7 +120,19 @@ if __name__ == "__main__":
             md_file = md_candidates[0]
             print(f"Auto-using markdown file: {md_file}")
 
-    if not os.path.exists(args.input):
-        print(f"Error: '{args.input}' not found.")
+    # If --input or --output are not set, use 'file' and 'output' from YAML config
+    input_file = args.input
+    output_file = args.output
+    if (not input_file or not output_file) or \
+       (input_file == parser.get_default('input') and output_file == parser.get_default('output')):
+        with open(args.yaml, 'r') as f:
+            config = yaml.safe_load(f)
+            if not input_file or input_file == parser.get_default('input'):
+                input_file = config.get('file', input_file)
+            if not output_file or output_file == parser.get_default('output'):
+                output_file = config.get('output', output_file)
+
+    if not os.path.exists(input_file):
+        print(f"Error: '{input_file}' not found.")
     else:
-        extract_workout_pages(args.input, args.output, args.yaml, md_file)
+        extract_workout_pages(input_file, output_file, args.yaml, md_file)

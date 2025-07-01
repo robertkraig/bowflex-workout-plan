@@ -13,11 +13,11 @@ This project allows you to export selected workout pages from a PDF and optional
 
 ### 1. Prepare your files
 - Place your input PDF (e.g., `BFX.Xceed.Global.OM.EN.pdf`) and optional Markdown file (e.g., `workout_plan.md`) in the `resources/` directory.
-- Place your `workouts.yaml` in the project root directory (or update the Makefile if you want to move it).
+- Place your `config.yaml` in the project root directory (or update the Makefile if you want to move it).
 
 ### 2. Export the workout booklet
 
-- To export the PDF with the workouts specified in `workouts.yaml`:
+- To export the PDF with the workouts specified in `config.yaml`:
   ```sh
   make run
   ```
@@ -35,7 +35,7 @@ This project allows you to export selected workout pages from a PDF and optional
   ```
 
 ## Customization
-- **Change workouts:** Edit `workouts.yaml` to add, remove, or reorder workout pages.
+- **Change workouts:** Edit `config.yaml` to add, remove, or reorder workout pages.
 - **Change input/output files:** Edit the Makefile or run the exporter manually with custom arguments:
   ```sh
   poetry run python -m workout_exporter --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
@@ -44,7 +44,7 @@ This project allows you to export selected workout pages from a PDF and optional
 ## File Locations
 - **PDF and Markdown files** should be placed in the `resources/` directory.
 - **Output PDFs** will be written to the `output/` directory.
-- **YAML file** (`workouts.yaml`) should be in the project root by default.
+- **YAML file** (`config.yaml`) should be in the project root by default.
 
 ---
 

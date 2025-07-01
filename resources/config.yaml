@@ -1,4 +1,7 @@
-workouts:
+file: resources/BFX.Xceed.Global.OM.EN.pdf
+output: output/Bowflex_Workout_Booklet.pdf
+appendFirstPage: first_page.md
+pages:
   - name: Bench Press
     pageIndex: 22
     pageNumber: 20

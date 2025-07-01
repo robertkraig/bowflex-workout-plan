@@ -14,11 +14,11 @@ install:
 
 run:
 	mkdir -p output
-	poetry run python -m workout_exporter --input resources/BFX.Xceed.Global.OM.EN.pdf --output output/Bowflex_Workout_Booklet.pdf --yaml workouts.yaml
+	poetry run python -m workout_exporter --yaml resources/config.yaml
 
 run-md:
 	mkdir -p output
-	poetry run python -m workout_exporter --input resources/BFX.Xceed.Global.OM.EN.pdf --output output/Bowflex_Workout_Booklet.pdf --yaml workouts.yaml --markdown resources/workout_plan.md
+	poetry run python -m workout_exporter --yaml resources/config.yaml
 
 clean:
 	rm -f output/Bowflex_Workout_Booklet.pdf
