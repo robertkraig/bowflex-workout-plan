@@ -1,4 +1,4 @@
-# bowflex_workout_exporter/__main__.py
+# pdf_extractor/__main__.py
 
 import os
 import yaml
@@ -47,19 +47,19 @@ def markdown_to_pdf_bytes(md_path):
         os.remove(pdf_path)
     return pdf_bytes
 
-def extract_workout_pages(input_pdf: str, output_pdf: str, yaml_path: str = "resources/config.yaml", md_path: str = None):
-    # Read workout pages from YAML
+def extract_pages(input_pdf: str, output_pdf: str, yaml_path: str = "resources/config.yaml", md_path: str = None):
+    # Read page configuration from YAML
     with open(yaml_path, 'r') as f:
         config = yaml.safe_load(f)
-        workouts = config.get('pages', [])
+        pages = config.get('pages', [])
         append_first_page = config.get('appendFirstPage', None)
     # Use only unique pageIndex values for extraction
     seen = set()
-    exercise_pages = []
-    for w in workouts:
-        idx = w.get('pageIndex') if 'pageIndex' in w else w.get('page')
+    selected_pages = []
+    for page_config in pages:
+        idx = page_config.get('pageIndex') if 'pageIndex' in page_config else page_config.get('page')
         if idx is not None and idx not in seen:
-            exercise_pages.append(idx-1)
+            selected_pages.append(idx-1)
             seen.add(idx)
 
     reader = PdfReader(input_pdf)
@@ -75,7 +75,7 @@ def extract_workout_pages(input_pdf: str, output_pdf: str, yaml_path: str = "res
         for page in md_reader.pages:
             writer.add_page(page)
 
-    for page_num in exercise_pages:
+    for page_num in selected_pages:
         if page_num < len(reader.pages):
             writer.add_page(reader.pages[page_num])
 
@@ -96,13 +96,14 @@ if __name__ == "__main__":
             config = yaml.safe_load(f)
     default_input = config.get('file')
     default_output = config.get('output')
-    default_markdown = os.path.join(os.path.dirname(config_path), config.get('appendFirstPage', "workout_plan.md"))
+    append_first_page = config.get('appendFirstPage')
+    default_markdown = os.path.join(os.path.dirname(config_path), append_first_page) if append_first_page else None
 
-    parser = argparse.ArgumentParser(description="Export workout pages and prepend Markdown intro.")
+    parser = argparse.ArgumentParser(description="Extract selected pages from PDF and optionally prepend Markdown intro.")
     parser.add_argument('--input', default=default_input, help=f"Input PDF file (default from config.yaml: {default_input})")
     parser.add_argument('--output', default=default_output, help=f"Output PDF file (default from config.yaml: {default_output})")
-    parser.add_argument('--yaml', default=config_path, help="YAML file with workout pages")
-    parser.add_argument('--markdown', default=default_markdown, help=f"Markdown file to prepend (default from config.yaml: {default_markdown})")
+    parser.add_argument('--yaml', default=config_path, help="YAML file with page configuration")
+    parser.add_argument('--markdown', default=default_markdown, help=f"Markdown file to prepend (default from config.yaml: {default_markdown or 'None'})")
     args = parser.parse_args()
 
     # If --markdown is not set, use appendFirstPage from YAML config
@@ -135,4 +136,4 @@ if __name__ == "__main__":
     if not os.path.exists(input_file):
         print(f"Error: '{input_file}' not found.")
     else:
-        extract_workout_pages(input_file, output_file, args.yaml, md_file)
+        extract_pages(input_file, output_file, args.yaml, md_file)

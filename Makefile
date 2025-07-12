@@ -1,4 +1,4 @@
-# Makefile for workout-plan project using Poetry
+# Makefile for pdf-page-extractor project using Poetry
 
 .PHONY: install run clean
 
@@ -14,11 +14,11 @@ install:
 
 run:
 	mkdir -p output
-	poetry run python -m workout_exporter --yaml resources/config.yaml
+	poetry run python -m pdf_extractor --yaml resources/config.yaml
 
 run-md:
 	mkdir -p output
-	poetry run python -m workout_exporter --yaml resources/config.yaml
+	poetry run python -m pdf_extractor --yaml resources/config.yaml
 
 clean:
-	rm -f output/Bowflex_Workout_Booklet.pdf
+	rm -f output/*.pdf
