@@ -4,6 +4,40 @@ This project allows you to extract selected pages from a PDF document and option
 
 ## Setup
 
+0. **Install system dependencies:**
+  ```sh
+  sudo apt install --no-install-recommends make build-essential \
+      libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+      wget curl llvm libncursesw5-dev xz-utils tk-dev libxml2-dev \
+      libxmlsec1-dev libffi-dev liblzma-dev git
+  curl -fsSL https://pyenv.run | bash
+  curl -sSL https://install.python-poetry.org | python -
+
+  export PYENV_ROOT="$HOME/.pyenv"
+  [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+  export PATH="$HOME/.local/bin:$PATH"
+
+  curl -fsSL https://github.com/dandavison/delta/releases/download/0.17.0/delta-0.17.0-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xzC /usr/local/bin --strip-components=1 delta-0.17.0-x86_64-unknown-linux-gnu/delta
+
+  git config --global core.pager delta
+  git config --global interactive.diffFilter "delta --color-only"
+  git config --global delta.navigate true
+  git config --global delta.light false
+  git config --global delta.side-by-side true
+  git config --global delta.line-numbers true
+  git config --global merge.conflictstyle diff3
+  git config --global diff.colorMoved default
+  git config --global delta.features "line-numbers decorations"
+  git config --global delta.syntax-theme "Monokai Extended"
+  git config --global delta.decorations.commit-decoration-style "blue ol"
+  git config --global delta.decorations.file-style "omit"
+  git config --global delta.decorations.hunk-header-decoration-style "blue box"
+  git config --global --get-regexp "delta"
+  git config --global delta.syntax-theme "Monokai Extended"
+  ```
+
 1. **Install dependencies with Poetry:**
    ```sh
    make install

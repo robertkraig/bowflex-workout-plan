@@ -1,0 +1,16 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "jetbrains": {
+      "backend": "IntelliJ"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git": {}
+  },
+  "name": "Bowflex DevContainer",
+  "postCreateCommand": "",
+  "remoteUser": "root"
+}

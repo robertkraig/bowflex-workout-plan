@@ -1,20 +1,21 @@
 # pdf_extractor/__main__.py
 
-import os
-import yaml
-from PyPDF2 import PdfReader, PdfWriter
 import io
-from markdown2 import markdown
-import tempfile
-import subprocess
 import os
+import subprocess
+import tempfile
+
+import yaml
+from markdown2 import markdown
+from PyPDF2 import PdfReader, PdfWriter
+
 
 def markdown_to_pdf_bytes(md_path):
     # Convert markdown to PDF using Puppeteer via Node.js
-    with open(md_path, 'r') as f:
+    with open(md_path, "r") as f:
         md_content = f.read()
     html_content = markdown(md_content, extras=["tables"])
-    html_template = f'''
+    html_template = f"""
     <html>
     <head>
         <style>
@@ -29,37 +30,45 @@ def markdown_to_pdf_bytes(md_path):
     </head>
     <body>{html_content}</body>
     </html>
-    '''
-    with tempfile.NamedTemporaryFile('w+', suffix='.html', delete=False) as html_file:
+    """
+    with tempfile.NamedTemporaryFile("w+", suffix=".html", delete=False) as html_file:
         html_file.write(html_template)
         html_file.flush()
         html_path = html_file.name
-    with tempfile.NamedTemporaryFile('rb', suffix='.pdf', delete=False) as pdf_file:
+    with tempfile.NamedTemporaryFile("rb", suffix=".pdf", delete=False) as pdf_file:
         pdf_path = pdf_file.name
     try:
-        subprocess.run([
-            'node', 'puppeteer_render.js', html_path, pdf_path
-        ], check=True)
-        with open(pdf_path, 'rb') as f:
+        subprocess.run(["node", "puppeteer_render.js", html_path, pdf_path], check=True)
+        with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
     finally:
         os.remove(html_path)
         os.remove(pdf_path)
     return pdf_bytes
 
-def extract_pages(input_pdf: str, output_pdf: str, yaml_path: str = "resources/config.yaml", md_path: str = None):
+
+def extract_pages(
+    input_pdf: str,
+    output_pdf: str,
+    yaml_path: str = "resources/config.yaml",
+    md_path: str = None,
+):
     # Read page configuration from YAML
-    with open(yaml_path, 'r') as f:
+    with open(yaml_path, "r") as f:
         config = yaml.safe_load(f)
-        pages = config.get('pages', [])
-        append_first_page = config.get('appendFirstPage', None)
+        pages = config.get("pages", [])
+        append_first_page = config.get("appendFirstPage", None)
     # Use only unique pageIndex values for extraction
     seen = set()
     selected_pages = []
     for page_config in pages:
-        idx = page_config.get('pageIndex') if 'pageIndex' in page_config else page_config.get('page')
+        idx = (
+            page_config.get("pageIndex")
+            if "pageIndex" in page_config
+            else page_config.get("page")
+        )
         if idx is not None and idx not in seen:
-            selected_pages.append(idx-1)
+            selected_pages.append(idx - 1)
             seen.add(idx)
 
     reader = PdfReader(input_pdf)
@@ -84,38 +93,60 @@ def extract_pages(input_pdf: str, output_pdf: str, yaml_path: str = "resources/c
 
     print(f"Saved to: {output_pdf}")
 
+
 if __name__ == "__main__":
     import argparse
+    import glob
+
     # Load config.yaml for dynamic defaults
-    import os
-    import yaml
     config_path = "resources/config.yaml"
     config = {}
     if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             config = yaml.safe_load(f)
-    default_input = config.get('file')
-    default_output = config.get('output')
-    append_first_page = config.get('appendFirstPage')
-    default_markdown = os.path.join(os.path.dirname(config_path), append_first_page) if append_first_page else None
+    default_input = config.get("file")
+    default_output = config.get("output")
+    append_first_page = config.get("appendFirstPage")
+    default_markdown = (
+        os.path.join(os.path.dirname(config_path), append_first_page)
+        if append_first_page
+        else None
+    )
 
-    parser = argparse.ArgumentParser(description="Extract selected pages from PDF and optionally prepend Markdown intro.")
-    parser.add_argument('--input', default=default_input, help=f"Input PDF file (default from config.yaml: {default_input})")
-    parser.add_argument('--output', default=default_output, help=f"Output PDF file (default from config.yaml: {default_output})")
-    parser.add_argument('--yaml', default=config_path, help="YAML file with page configuration")
-    parser.add_argument('--markdown', default=default_markdown, help=f"Markdown file to prepend (default from config.yaml: {default_markdown or 'None'})")
+    parser = argparse.ArgumentParser(
+        description="Extract selected pages from PDF and optionally prepend "
+        "Markdown intro."
+    )
+    parser.add_argument(
+        "--input",
+        default=default_input,
+        help=f"Input PDF file (default from config.yaml: {default_input})",
+    )
+    parser.add_argument(
+        "--output",
+        default=default_output,
+        help=f"Output PDF file (default from config.yaml: {default_output})",
+    )
+    parser.add_argument(
+        "--yaml", default=config_path, help="YAML file with page configuration"
+    )
+    parser.add_argument(
+        "--markdown",
+        default=default_markdown,
+        help=f"Markdown file to prepend (default from config.yaml: "
+        f"{default_markdown or 'None'})",
+    )
     args = parser.parse_args()
 
     # If --markdown is not set, use appendFirstPage from YAML config
     md_file = args.markdown
     if md_file is None:
-        with open(args.yaml, 'r') as f:
+        with open(args.yaml, "r") as f:
             config = yaml.safe_load(f)
-            append_first_page = config.get('appendFirstPage', None)
+            append_first_page = config.get("appendFirstPage", None)
             if append_first_page:
                 md_file = os.path.join(os.path.dirname(args.yaml), append_first_page)
     if md_file is None:
-        import glob
         md_candidates = glob.glob("resources/*.md")
         if md_candidates:
             md_file = md_candidates[0]
@@ -124,14 +155,16 @@ if __name__ == "__main__":
     # If --input or --output are not set, use 'file' and 'output' from YAML config
     input_file = args.input
     output_file = args.output
-    if (not input_file or not output_file) or \
-       (input_file == parser.get_default('input') and output_file == parser.get_default('output')):
-        with open(args.yaml, 'r') as f:
+    if (not input_file or not output_file) or (
+        input_file == parser.get_default("input")
+        and output_file == parser.get_default("output")
+    ):
+        with open(args.yaml, "r") as f:
             config = yaml.safe_load(f)
-            if not input_file or input_file == parser.get_default('input'):
-                input_file = config.get('file', input_file)
-            if not output_file or output_file == parser.get_default('output'):
-                output_file = config.get('output', output_file)
+            if not input_file or input_file == parser.get_default("input"):
+                input_file = config.get("file", input_file)
+            if not output_file or output_file == parser.get_default("output"):
+                output_file = config.get("output", output_file)
 
     if not os.path.exists(input_file):
         print(f"Error: '{input_file}' not found.")
