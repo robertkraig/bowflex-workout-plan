@@ -19,23 +19,32 @@ This project allows you to extract selected pages from a PDF document and option
   eval "$(pyenv init -)"
   export PATH="$HOME/.local/bin:$PATH"
 
+  # Install Delta for enhanced Git diffs with syntax highlighting
   curl -fsSL https://github.com/dandavison/delta/releases/download/0.17.0/delta-0.17.0-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xzC /usr/local/bin --strip-components=1 delta-0.17.0-x86_64-unknown-linux-gnu/delta
 
+  # Install bat for syntax highlighting (required by delta)
+  sudo apt update && sudo apt install -y bat
+  sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
+
+  # Install Chrome dependencies for Puppeteer (especially needed in WSL)
+  sudo apt install -y libasound2t64 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 \
+      libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libgtk-3-0t64 \
+      libx11-xcb1 libxcb-dri3-0 libxcursor1 libxi6 libxtst6 libnss3
+
+  # Configure Delta globally for all Git repositories
   git config --global core.pager delta
   git config --global interactive.diffFilter "delta --color-only"
   git config --global delta.navigate true
   git config --global delta.light false
   git config --global delta.side-by-side true
   git config --global delta.line-numbers true
-  git config --global merge.conflictstyle diff3
-  git config --global diff.colorMoved default
+  git config --global delta.syntax-theme "GitHub"
   git config --global delta.features "line-numbers decorations"
-  git config --global delta.syntax-theme "Monokai Extended"
   git config --global delta.decorations.commit-decoration-style "blue ol"
   git config --global delta.decorations.file-style "omit"
   git config --global delta.decorations.hunk-header-decoration-style "blue box"
-  git config --global --get-regexp "delta"
-  git config --global delta.syntax-theme "Monokai Extended"
+  git config --global merge.conflictstyle diff3
+  git config --global diff.colorMoved default
   ```
 
 1. **Install dependencies with Poetry:**
