@@ -53,3 +53,4 @@ Thumbs.db
 .idea/
 *.iml
 .history/
+.setup_complete

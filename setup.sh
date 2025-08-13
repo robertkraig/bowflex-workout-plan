@@ -42,7 +42,7 @@ fi
 # Set up environment variables
 echo "Setting up environment variables..."
 
-# Add environment variables to shell rc file using a heredoc
+# Choose appropriate shell rc
 if [ -f "$HOME/.zshrc" ]; then
    SHELL_RC="$HOME/.zshrc"
 elif [ -f "$HOME/.bashrc" ]; then
@@ -52,18 +52,48 @@ else
    touch "$SHELL_RC"
 fi
 
-ENV_BLOCK='
+# Configure pyenv for zsh and bash appropriately
+if [ "$SHELL_RC" = "$HOME/.zshrc" ]; then
+   # Ensure pyenv is initialized in zshrc (interactive shells)
+   if ! grep -Fq 'eval "$(pyenv init -)"' "$SHELL_RC" && ! grep -Fq 'eval "$(pyenv init -)"' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_PYENV'
+
+# pyenv configuration (zsh)
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+export PATH="$HOME/.local/bin:$PATH"
+
+ZSHRC_PYENV
+   fi
+
+   # For zsh login shells, ensure pyenv --path is in .zprofile
+   ZPROFILE="$HOME/.zprofile"
+   [ -f "$ZPROFILE" ] || touch "$ZPROFILE"
+   if ! grep -Fq 'eval "$(pyenv init --path)"' "$ZPROFILE"; then
+cat >> "$ZPROFILE" <<'ZPROFILE_PYENV'
+
+# pyenv in PATH for zsh login shells
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+
+ZPROFILE_PYENV
+   fi
+else
+   # Bash fallback: add pyenv init to bashrc
+   if ! grep -Fq 'export PYENV_ROOT="$HOME/.pyenv"' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_PYENV'
+
+# pyenv configuration (bash)
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 export PATH="$HOME/.local/bin:$PATH"
-'
 
-if ! grep -Fq 'export PYENV_ROOT="$HOME/.pyenv"' "$SHELL_RC"; then
-   cat <<'EOF' >> "$SHELL_RC"
-$ENV_BLOCK
-EOF
+BASHRC_PYENV
+   fi
 fi
 
 # Install Delta for enhanced Git diffs
