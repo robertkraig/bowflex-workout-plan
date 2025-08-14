@@ -26,6 +26,8 @@ def markdown_to_pdf_bytes(md_path):
             th {{ background: #d5e4f3; }}
             code {{ background: #eee; padding: 2px 4px; border-radius: 4px; }}
             pre {{ background: #f4f4f4; padding: 1em; border-radius: 4px; }}
+            ul {{ margin: 1em 0; padding-left: 2em; }}
+            li {{ margin: 0.5em 0; }}
         </style>
     </head>
     <body>{html_content}</body>
@@ -38,7 +40,9 @@ def markdown_to_pdf_bytes(md_path):
     with tempfile.NamedTemporaryFile("rb", suffix=".pdf", delete=False) as pdf_file:
         pdf_path = pdf_file.name
     try:
-        subprocess.run(["node", "puppeteer_render.js", html_path, pdf_path], check=True)
+        subprocess.run(
+            ["node", "../puppeteer_render.js", html_path, pdf_path], check=True
+        )
         with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
     finally:
@@ -50,7 +54,7 @@ def markdown_to_pdf_bytes(md_path):
 def extract_pages(
     input_pdf: str,
     output_pdf: str,
-    yaml_path: str = "resources/config.yaml",
+    yaml_path: str = "../resources/config.yaml",
     md_path: str = None,
 ):
     # Read page configuration from YAML
@@ -99,7 +103,7 @@ if __name__ == "__main__":
     import glob
 
     # Load config.yaml for dynamic defaults
-    config_path = "resources/config.yaml"
+    config_path = "../resources/config.yaml"
     config = {}
     if os.path.exists(config_path):
         with open(config_path, "r") as f:
@@ -147,7 +151,7 @@ if __name__ == "__main__":
             if append_first_page:
                 md_file = os.path.join(os.path.dirname(args.yaml), append_first_page)
     if md_file is None:
-        md_candidates = glob.glob("resources/*.md")
+        md_candidates = glob.glob("../resources/*.md")
         if md_candidates:
             md_file = md_candidates[0]
             print(f"Auto-using markdown file: {md_file}")
@@ -161,10 +165,27 @@ if __name__ == "__main__":
     ):
         with open(args.yaml, "r") as f:
             config = yaml.safe_load(f)
+            # Get the parent directory of the yaml file (should be project root)
+            yaml_parent = os.path.dirname(os.path.dirname(args.yaml))
             if not input_file or input_file == parser.get_default("input"):
-                input_file = config.get("file", input_file)
+                config_input = config.get("file", input_file)
+                if config_input and not os.path.isabs(config_input):
+                    input_file = os.path.join(yaml_parent, config_input)
+                else:
+                    input_file = config_input
             if not output_file or output_file == parser.get_default("output"):
-                output_file = config.get("output", output_file)
+                config_output = config.get("output", output_file)
+                if config_output and not os.path.isabs(config_output):
+                    output_file = os.path.join(yaml_parent, config_output)
+                else:
+                    output_file = config_output
+
+                # Add _python suffix to filename
+                if output_file:
+                    dir_part = os.path.dirname(output_file)
+                    file_part = os.path.basename(output_file)
+                    name_part = os.path.splitext(file_part)[0]
+                    output_file = os.path.join(dir_part, f"{name_part}_python.pdf")
 
     if not os.path.exists(input_file):
         print(f"Error: '{input_file}' not found.")

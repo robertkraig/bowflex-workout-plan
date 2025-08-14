@@ -1,4 +1,14 @@
-# Python
+# Multi-Language PDF Page Extractor .gitignore
+
+# Setup completion marker
+.setup_complete
+
+# Generated output files (keep directory structure)
+output/*.pdf
+
+# =============================================================================
+# PYTHON
+# =============================================================================
 __pycache__/
 *.py[cod]
 *.pyo
@@ -9,48 +19,99 @@ __pycache__/
 .eggs/
 dist/
 build/
-*.log
-*.sqlite3
-*.db
-*.DS_Store
+*.pyc
 
 # Poetry
+poetry.lock
 .poetry/
 .env
 .venv/
+venv/
+env/
 
 # Jupyter
 .ipynb_checkpoints
 
-# VSCode
-.vscode/
+# =============================================================================
+# RUST
+# =============================================================================
+# Rust build artifacts
+target/
+Cargo.lock
 
-# Node
+# =============================================================================
+# GO
+# =============================================================================
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test binary, built with `go test -c`
+*.test
+
+# Go output binary
+*.out
+
+# Go vendor directory
+vendor/
+
+# Go module download cache
+go.sum
+
+# =============================================================================
+# JULIA
+# =============================================================================
+# Julia build artifacts
+deps/builds/
+deps/downloads/
+deps/usr/
+
+# Julia package manager
+Manifest.toml
+
+# Julia compiled modules
+*.ji
+
+# =============================================================================
+# NODE.JS (for Puppeteer)
+# =============================================================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
 .pnpm-debug.log*
 
-# Mac
-.DS_Store
-
-# Output and resources
-output/
-resources/*.pdf
-
-# OS
-Thumbs.db
-.DS_Store
-
-# Misc
-*.bak
-*.swp
-*.tmp
-
-# Ignore environment and IDE settings
+# =============================================================================
+# IDE AND EDITOR FILES
+# =============================================================================
+.vscode/
 .idea/
 *.iml
+*.swp
+*.swo
+*~
 .history/
-.setup_complete
+
+# =============================================================================
+# OS GENERATED FILES
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.log
+resources/BFX.Xceed.Global.OM.EN.pdf
+output

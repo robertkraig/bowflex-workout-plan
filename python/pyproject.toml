@@ -3,7 +3,7 @@ name = "pdf-page-extractor"
 version = "0.1.0"
 description = "Extract selected pages from PDF files and optionally prepend a Markdown introduction"
 authors = ["Robert Kraig <robertkraig@gmail.com>"]
-readme = "README.md"
+readme = "../README.md"
 
 [[tool.poetry.packages]]
 include = "pdf_extractor"

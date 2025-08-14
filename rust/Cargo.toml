@@ -1,0 +1,14 @@
+[package]
+name = "pdf-page-extractor"
+version = "0.1.0"
+edition = "2021"
+description = "Extract selected pages from PDF files and optionally prepend a Markdown introduction"
+authors = ["Robert Kraig <robertkraig@gmail.com>"]
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+pulldown-cmark = "0.9"
+tempfile = "3.0"
+anyhow = "1.0"

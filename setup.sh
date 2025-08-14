@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# PDF Page Extractor Setup Script
-# This script sets up the development environment and dependencies
+# Multi-Language PDF Page Extractor Setup Script
+# This script sets up the development environment and dependencies for Python, Rust, and Go
 # It uses a dirty-bit mechanism to avoid running setup multiple times
 
 set -e  # Exit on any error
@@ -14,7 +14,7 @@ if [ -f "$SETUP_MARKER" ]; then
     exit 0
 fi
 
-echo "Starting PDF Page Extractor setup..."
+echo "Starting Multi-Language PDF Page Extractor setup..."
 
 # Install system dependencies
 echo "Installing system dependencies..."
@@ -37,6 +37,39 @@ if ! command -v poetry &> /dev/null; then
     curl -sSL https://install.python-poetry.org | python -
 else
     echo "Poetry is already installed"
+fi
+
+# Install Rust toolchain
+echo "Installing Rust toolchain..."
+if ! command -v rustc &> /dev/null; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+else
+    echo "Rust is already installed"
+fi
+
+# Install Go
+echo "Installing Go..."
+if ! command -v go &> /dev/null; then
+    GO_VERSION="1.21.5"
+    wget -O go.tar.gz "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+    sudo rm -rf /usr/local/go
+    sudo tar -C /usr/local -xzf go.tar.gz
+    rm go.tar.gz
+else
+    echo "Go is already installed"
+fi
+
+# Install Julia
+echo "Installing Julia..."
+if ! command -v julia &> /dev/null; then
+    JULIA_VERSION="1.10.0"
+    wget -O julia.tar.gz "https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-${JULIA_VERSION}-linux-x86_64.tar.gz"
+    sudo tar -C /opt -xzf julia.tar.gz
+    sudo ln -sf /opt/julia-${JULIA_VERSION}/bin/julia /usr/local/bin/julia
+    rm julia.tar.gz
+else
+    echo "Julia is already installed"
 fi
 
 # Set up environment variables
@@ -63,6 +96,17 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 export PATH="$HOME/.local/bin:$PATH"
+
+# Rust configuration
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Go configuration
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# Julia configuration
+export PATH="/usr/local/bin:$PATH"
 
 ZSHRC_PYENV
    fi
@@ -92,6 +136,17 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 export PATH="$HOME/.local/bin:$PATH"
 
+# Rust configuration
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Go configuration
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# Julia configuration
+export PATH="/usr/local/bin:$PATH"
+
 BASHRC_PYENV
    fi
 fi
@@ -113,11 +168,12 @@ else
     echo "bat is already installed"
 fi
 
-# Install Chrome dependencies for Puppeteer
-echo "Installing Chrome dependencies for Puppeteer..."
+# Install Chrome dependencies for Puppeteer and PDF tools
+echo "Installing Chrome dependencies for Puppeteer and PDF tools..."
 sudo apt install -y libasound2t64 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 \
     libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libgtk-3-0t64 \
-    libx11-xcb1 libxcb-dri3-0 libxcursor1 libxi6 libxtst6 libnss3
+    libx11-xcb1 libxcb-dri3-0 libxcursor1 libxi6 libxtst6 libnss3 \
+    pdftk-java
 
 # Configure Delta globally for all Git repositories
 echo "Configuring Delta globally..."
@@ -135,15 +191,34 @@ git config --global delta.decorations.hunk-header-decoration-style "blue box"
 git config --global merge.conflictstyle diff3
 git config --global diff.colorMoved default
 
-# Install Python dependencies with Poetry
-echo "Installing Python dependencies with Poetry..."
-make install
+# Source environment to make sure new tools are available
+source "$SHELL_RC" 2>/dev/null || true
+
+# Install dependencies for all languages
+echo "Installing dependencies for all languages..."
+export PATH="/usr/local/go/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+make install-all
 
 # Create setup completion marker
 echo "Creating setup completion marker..."
 touch "$SETUP_MARKER"
 
-echo "Setup completed successfully!"
+echo "Multi-language setup completed successfully!"
+echo ""
+echo "Installed toolchains:"
+echo "  ✅ Python with pyenv and Poetry"
+echo "  ✅ Rust with rustup and Cargo"
+echo "  ✅ Go 1.21.5"
+echo "  ✅ Julia 1.10.0"
+echo "  ✅ Node.js dependencies for Puppeteer"
+echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
+echo ""
+echo "Quick start:"
+echo "  make run-python    # Run Python implementation"
+echo "  make run-rust      # Run Rust implementation"
+echo "  make run-golang    # Run Go implementation"
+echo "  make run-julia     # Run Julia implementation"
 echo ""
 echo "To reset and re-run setup in the future, delete the '$SETUP_MARKER' file and run this script again."

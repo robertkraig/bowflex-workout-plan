@@ -1,50 +1,73 @@
-# Makefile for pdf-page-extractor project using Poetry
+# Multi-language PDF Page Extractor Makefile
 
-.PHONY: install run clean format lint fix-line-endings setup-hooks
+.PHONY: help install-python install-rust install-golang install-julia install-all
+.PHONY: run-python run-rust run-golang run-julia clean-all format-all lint-all
 
-init:
-	pyenv install -s 3.11.9
-	pyenv local 3.11.9
-	poetry env use 3.11.9
-	poetry install
+# Default target
+help:
+	@echo "Multi-language PDF Page Extractor"
+	@echo ""
+	@echo "Available targets:"
+	@echo "  install-python   - Install Python dependencies"
+	@echo "  install-rust     - Install Rust dependencies"
+	@echo "  install-golang   - Install Go dependencies"
+	@echo "  install-julia    - Install Julia dependencies"
+	@echo "  install-all      - Install all language dependencies"
+	@echo ""
+	@echo "  run-python       - Run Python implementation"
+	@echo "  run-rust         - Run Rust implementation"
+	@echo "  run-golang       - Run Go implementation"
+	@echo "  run-julia        - Run Julia implementation"
+	@echo ""
+	@echo "  clean-all        - Clean all build artifacts"
+	@echo "  format-all       - Format code in all languages"
+	@echo "  lint-all         - Lint code in all languages"
+
+# Installation targets
+install-python:
+	cd python && $(MAKE) install
+
+install-rust:
+	cd rust && $(MAKE) install
+
+install-golang:
+	cd golang && $(MAKE) install
+
+install-julia:
+	cd julia && $(MAKE) install
+
+install-all: install-python install-rust install-golang install-julia
 	npm ci
-	$(MAKE) setup-hooks
 
-install:
-	poetry install
+# Run targets
+run-python:
+	cd python && $(MAKE) run
 
-run:
-	mkdir -p output
-	poetry run python -m pdf_extractor --yaml resources/config.yaml
+run-rust:
+	cd rust && $(MAKE) run
 
-run-md:
-	mkdir -p output
-	poetry run python -m pdf_extractor --yaml resources/config.yaml
+run-golang:
+	cd golang && $(MAKE) run
 
-# Code formatting and linting
-format:
-	poetry run black .
-	poetry run isort .
+run-julia:
+	cd julia && $(MAKE) run
 
-lint:
-	poetry run flake8 .
-	poetry run black --check .
-	poetry run isort --check-only .
+# Maintenance targets
+clean-all:
+	cd python && $(MAKE) clean
+	cd rust && $(MAKE) clean
+	cd golang && $(MAKE) clean
+	cd julia && $(MAKE) clean
+	rm -rf output/*.pdf
 
-# Setup pre-commit hooks
-setup-hooks:
-	poetry run pre-commit install
-	poetry run pre-commit autoupdate
+format-all:
+	cd python && $(MAKE) format
+	cd rust && $(MAKE) format
+	cd golang && $(MAKE) format
+	cd julia && $(MAKE) format
 
-# Fix line endings to Unix format (LF)
-fix-line-endings:
-	@echo "Converting line endings to Unix format (LF)..."
-	find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.md" -o -name "*.txt" -o -name "*.toml" \) -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./.*cache*" -exec dos2unix {} \; 2>/dev/null || true
-	@echo "Line endings conversion complete."
-
-# Run pre-commit on all files
-check-all:
-	poetry run pre-commit run --all-files
-
-clean:
-	rm -f output/*.pdf
+lint-all:
+	cd python && $(MAKE) lint
+	cd rust && $(MAKE) lint
+	cd golang && $(MAKE) lint
+	cd julia && $(MAKE) lint

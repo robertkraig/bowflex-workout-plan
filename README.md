@@ -1,33 +1,40 @@
-# PDF Page Extractor
+# Multi-Language PDF Page Extractor
 
-This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction using a simple Makefile and Poetry for dependency management.
+This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in multiple programming languages: **Python**, **Rust**, **Go**, and **Julia**.
+
+## Language Implementations
+
+- **`python/`** - Original Python implementation using PyPDF2 and Poetry
+- **`rust/`** - Rust implementation using lopdf and Cargo
+- **`golang/`** - Go implementation using unipdf and Go modules
+- **`julia/`** - Julia implementation using Poppler and native package manager
+
+All implementations share the same resources and output directories, and use the same Node.js Puppeteer script for Markdown-to-PDF conversion.
 
 ## Setup
 
-**Quick Setup:**
-Run the automated setup script to install all dependencies and configure your environment:
-
+**Quick Setup for All Languages:**
 ```sh
-./setup.sh
+./setup.sh          # Install system dependencies and Python environment
+make install-all    # Install dependencies for all languages
 ```
 
-This script will:
-- Install all required system dependencies (build tools, Python dependencies, etc.)
-- Install and configure pyenv and Poetry
-- Install Delta for enhanced Git diffs with syntax highlighting
-- Install Chrome dependencies needed for Puppeteer
-- Configure Git with Delta globally
-- Install Python dependencies using Poetry
-- Create a setup completion marker to prevent re-running
-
-The setup script uses a dirty-bit mechanism (`.setup_complete` file) to avoid running multiple times. If you need to re-run setup, simply delete the `.setup_complete` file and run `./setup.sh` again.
-
-**Manual Setup:**
-If you prefer to install dependencies manually, you can run:
+**Language-Specific Setup:**
 ```sh
-make install
+# Python only
+make install-python
+
+# Rust only
+make install-rust
+
+# Go only
+make install-golang
+
+# Julia only
+make install-julia
 ```
-(Note: This only installs Python dependencies and assumes system dependencies are already installed)
+
+The setup script installs system dependencies, Python environment, and Node.js dependencies needed for Puppeteer PDF generation.
 
 ## Usage
 
@@ -37,22 +44,31 @@ make install
 
 ### 2. Extract pages from PDF
 
-- To extract the PDF pages specified in `config.yaml`:
-  ```sh
-  make run
-  ```
-  This will create `extracted_pages.pdf` in the `output/` directory.
+**Choose your preferred language implementation:**
 
-- To extract pages with a Markdown intro at the front:
-  ```sh
-  make run-md
-  ```
-  This expects a file called `first_page.md` in the `resources/` directory. You can change the file name by editing the config or running the extractor manually.
+```sh
+# Python implementation
+make run-python
 
-- To remove generated PDFs:
-  ```sh
-  make clean
-  ```
+# Rust implementation
+make run-rust
+
+# Go implementation
+make run-golang
+
+# Julia implementation
+make run-julia
+```
+
+All implementations:
+- Extract PDF pages specified in `config.yaml`
+- Create `extracted_pages.pdf` in the `output/` directory
+- Support Markdown intro files as configured in the YAML
+
+**Clean up:**
+```sh
+make clean-all    # Remove all generated PDFs and build artifacts
+```
 
 ## Configuration
 
@@ -83,8 +99,19 @@ pages:
 
 - **Change pages to extract:** Edit `config.yaml` to add, remove, or reorder pages.
 - **Change input/output files:** Edit the config file or run the extractor manually with custom arguments:
+
   ```sh
-  poetry run python -m pdf_extractor --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+  # Python
+  cd python && poetry run python -m pdf_extractor --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Rust
+  cd rust && cargo run -- --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Go
+  cd golang && go run . --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Julia
+  cd julia && julia --project=. main.jl --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
   ```
 
 ## File Locations
@@ -101,7 +128,23 @@ pages:
 - ✅ Automatic duplicate page detection
 - ✅ Support for tables and formatting in markdown
 - ✅ Command-line interface for automation
+- ✅ **Multi-language implementations** (Python, Rust, Go, Julia)
+- ✅ Shared resources and consistent output across all languages
+
+## Development
+
+**Code formatting and linting:**
+```sh
+make format-all    # Format code in all languages
+make lint-all      # Lint code in all languages
+```
+
+**Language-specific development:**
+- **Python**: Uses Poetry, Black, isort, flake8
+- **Rust**: Uses Cargo, rustfmt, clippy
+- **Go**: Uses go fmt, go vet
+- **Julia**: Uses Pkg, JuliaFormatter, Lint
 
 ---
 
-If you have any issues or want to further customize the workflow, see the code in `pdf_extractor/__main__.py` or reach out for help!
+Choose your preferred language implementation or use this project to compare PDF processing approaches across Python, Rust, Go, and Julia!
