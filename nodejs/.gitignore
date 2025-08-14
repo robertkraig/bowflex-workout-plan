@@ -1,0 +1,106 @@
+# Node.js-specific .gitignore
+
+# =============================================================================
+# NODE.JS DEPENDENCIES
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+jspm_packages/
+
+# =============================================================================
+# PACKAGE MANAGER FILES
+# =============================================================================
+# npm (keep package-lock.json committed for consistency)
+npm-shrinkwrap.json
+
+# yarn (keep yarn.lock committed when using yarn)
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# pnpm (keep pnpm-lock.yaml committed when using pnpm)
+
+# =============================================================================
+# NODE.JS RUNTIME FILES
+# =============================================================================
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# =============================================================================
+# BUILD AND DISTRIBUTION
+# =============================================================================
+# Compiled binary addons
+build/Release
+dist/
+build/
+
+# =============================================================================
+# LOGS
+# =============================================================================
+logs
+*.log
+
+# =============================================================================
+# ENVIRONMENT AND CONFIG
+# =============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =============================================================================
+# PUPPETEER SPECIFIC
+# =============================================================================
+# Puppeteer downloads Chromium to a cache folder
+.cache/
+.puppeteer/
+
+# Screenshots and PDFs generated during development
+screenshots/
+*.pdf
+temp_*.html
+
+# =============================================================================
+# IDE AND EDITOR FILES
+# =============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# OS FILES
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# =============================================================================
+# TEMPORARY AND CACHE FILES
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+.cache/

@@ -21,8 +21,7 @@ dist/
 build/
 *.pyc
 
-# Poetry
-poetry.lock
+# Poetry (keep poetry.lock committed for consistency)
 .poetry/
 .env
 .venv/
@@ -35,9 +34,8 @@ env/
 # =============================================================================
 # RUST
 # =============================================================================
-# Rust build artifacts
+# Rust build artifacts (keep Cargo.lock committed for consistency)
 target/
-Cargo.lock
 
 # =============================================================================
 # GO
@@ -58,8 +56,7 @@ Cargo.lock
 # Go vendor directory
 vendor/
 
-# Go module download cache
-go.sum
+# Go module download cache (keep go.sum committed for consistency)
 
 # =============================================================================
 # JULIA
@@ -69,11 +66,24 @@ deps/builds/
 deps/downloads/
 deps/usr/
 
-# Julia package manager
-Manifest.toml
+# Julia package manager (keep Manifest.toml committed for consistency)
 
 # Julia compiled modules
 *.ji
+
+# =============================================================================
+# PHP
+# =============================================================================
+# Composer dependencies (keep composer.lock committed for consistency)
+vendor/
+
+# PHP development tools
+.php-cs-fixer.cache
+.phpstan-cache/
+.phpunit.result.cache
+
+# PHP logs
+php_errors.log
 
 # =============================================================================
 # NODE.JS (for Puppeteer)
@@ -83,6 +93,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Puppeteer cache
+.cache/
+.puppeteer/
 
 # =============================================================================
 # IDE AND EDITOR FILES

@@ -1,6 +1,6 @@
 # Multi-Language PDF Page Extractor
 
-This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in multiple programming languages: **Python**, **Rust**, **Go**, and **Julia**.
+This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in multiple programming languages: **Python**, **Rust**, **Go**, **Julia**, **PHP**, and **Node.js**.
 
 ## Language Implementations
 
@@ -8,6 +8,8 @@ This project allows you to extract selected pages from a PDF document and option
 - **`rust/`** - Rust implementation using lopdf and Cargo
 - **`golang/`** - Go implementation using unipdf and Go modules
 - **`julia/`** - Julia implementation using Poppler and native package manager
+- **`php/`** - PHP implementation using FPDI and Composer
+- **`nodejs/`** - Node.js implementation using pdf-lib and npm
 
 All implementations share the same resources and output directories, and use the same Node.js Puppeteer script for Markdown-to-PDF conversion.
 
@@ -32,6 +34,12 @@ make install-golang
 
 # Julia only
 make install-julia
+
+# PHP only
+make install-php
+
+# Node.js only
+make install-nodejs
 ```
 
 The setup script installs system dependencies, Python environment, and Node.js dependencies needed for Puppeteer PDF generation.
@@ -58,6 +66,12 @@ make run-golang
 
 # Julia implementation
 make run-julia
+
+# PHP implementation
+make run-php
+
+# Node.js implementation
+make run-nodejs
 ```
 
 All implementations:
@@ -112,6 +126,12 @@ pages:
 
   # Julia
   cd julia && julia --project=. main.jl --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # PHP
+  cd php && php src/main.php --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Node.js
+  cd nodejs && npm start -- --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
   ```
 
 ## File Locations
@@ -128,7 +148,7 @@ pages:
 - ✅ Automatic duplicate page detection
 - ✅ Support for tables and formatting in markdown
 - ✅ Command-line interface for automation
-- ✅ **Multi-language implementations** (Python, Rust, Go, Julia)
+- ✅ **Multi-language implementations** (Python, Rust, Go, Julia, PHP, Node.js)
 - ✅ Shared resources and consistent output across all languages
 
 ## Development
@@ -144,7 +164,9 @@ make lint-all      # Lint code in all languages
 - **Rust**: Uses Cargo, rustfmt, clippy
 - **Go**: Uses go fmt, go vet
 - **Julia**: Uses Pkg, JuliaFormatter, Lint
+- **PHP**: Uses Composer, PHP CodeSniffer, PHPStan
+- **Node.js**: Uses npm, ESLint, Prettier
 
 ---
 
-Choose your preferred language implementation or use this project to compare PDF processing approaches across Python, Rust, Go, and Julia!
+Choose your preferred language implementation or use this project to compare PDF processing approaches across Python, Rust, Go, Julia, PHP, and Node.js!

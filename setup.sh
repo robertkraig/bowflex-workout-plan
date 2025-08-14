@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Multi-Language PDF Page Extractor Setup Script
-# This script sets up the development environment and dependencies for Python, Rust, and Go
+# This script sets up the development environment and dependencies for Python, Rust, Go, Julia, PHP, and Node.js
 # It uses a dirty-bit mechanism to avoid running setup multiple times
 
 set -e  # Exit on any error
@@ -72,6 +72,53 @@ else
     echo "Julia is already installed"
 fi
 
+# Install PHP
+echo "Installing PHP..."
+if ! command -v php &> /dev/null; then
+    sudo apt update
+    sudo apt install -y php php-cli php-mbstring php-xml php-zip php-curl php-json php-common php-bcmath php-gd
+
+    # Install Composer
+    echo "Installing Composer..."
+    if ! command -v composer &> /dev/null; then
+        curl -sS https://getcomposer.org/installer | php
+        sudo mv composer.phar /usr/local/bin/composer
+        sudo chmod +x /usr/local/bin/composer
+    else
+        echo "Composer is already installed"
+    fi
+else
+    echo "PHP is already installed"
+
+    # Still check for Composer
+    if ! command -v composer &> /dev/null; then
+        echo "Installing Composer..."
+        curl -sS https://getcomposer.org/installer | php
+        sudo mv composer.phar /usr/local/bin/composer
+        sudo chmod +x /usr/local/bin/composer
+    else
+        echo "Composer is already installed"
+    fi
+fi
+
+# Install Node.js and npm
+echo "Installing Node.js..."
+if ! command -v node &> /dev/null; then
+    # Install Node.js using NodeSource repository
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt install -y nodejs
+else
+    echo "Node.js is already installed"
+fi
+
+# Ensure npm is installed
+if ! command -v npm &> /dev/null; then
+    echo "Installing npm..."
+    sudo apt install -y npm
+else
+    echo "npm is already installed"
+fi
+
 # Set up environment variables
 echo "Setting up environment variables..."
 
@@ -107,6 +154,12 @@ export PATH="$GOPATH/bin:$PATH"
 
 # Julia configuration
 export PATH="/usr/local/bin:$PATH"
+
+# PHP configuration
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+# Node.js configuration
+export PATH="$HOME/.local/lib/nodejs/bin:$PATH"
 
 ZSHRC_PYENV
    fi
@@ -146,6 +199,12 @@ export PATH="$GOPATH/bin:$PATH"
 
 # Julia configuration
 export PATH="/usr/local/bin:$PATH"
+
+# PHP configuration
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+# Node.js configuration
+export PATH="$HOME/.local/lib/nodejs/bin:$PATH"
 
 BASHRC_PYENV
    fi
@@ -211,7 +270,8 @@ echo "  ✅ Python with pyenv and Poetry"
 echo "  ✅ Rust with rustup and Cargo"
 echo "  ✅ Go 1.21.5"
 echo "  ✅ Julia 1.10.0"
-echo "  ✅ Node.js dependencies for Puppeteer"
+echo "  ✅ PHP with Composer"
+echo "  ✅ Node.js with npm and Puppeteer dependencies"
 echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
 echo ""
@@ -220,5 +280,7 @@ echo "  make run-python    # Run Python implementation"
 echo "  make run-rust      # Run Rust implementation"
 echo "  make run-golang    # Run Go implementation"
 echo "  make run-julia     # Run Julia implementation"
+echo "  make run-php       # Run PHP implementation"
+echo "  make run-nodejs    # Run Node.js implementation"
 echo ""
 echo "To reset and re-run setup in the future, delete the '$SETUP_MARKER' file and run this script again."

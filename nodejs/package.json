@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "commander": "^11.1.0",
+    "marked": "^9.1.6",
+    "pdf-lib": "^1.17.1",
+    "yaml": "^2.3.4"
+  },
+  "description": "Node.js implementation of PDF page extractor",
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "main": "src/main.js",
+  "name": "workout-plan-nodejs-pdf-extractor",
+  "scripts": {
+    "extract": "node src/main.js",
+    "format": "prettier --write src/",
+    "lint": "eslint src/",
+    "start": "node src/main.js"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

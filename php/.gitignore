@@ -1,0 +1,81 @@
+# PHP-specific .gitignore
+
+# =============================================================================
+# COMPOSER DEPENDENCIES
+# =============================================================================
+# Keep composer.lock committed for dependency consistency
+/vendor/
+
+# =============================================================================
+# PHP DEVELOPMENT TOOLS
+# =============================================================================
+# PHP-CS-Fixer cache
+.php-cs-fixer.cache
+.php-cs-fixer.dist.php
+
+# PHPStan cache
+.phpstan-cache/
+.phpstan.neon.dist
+
+# PHPUnit
+.phpunit.result.cache
+/tests/_output/*
+/tests/_support/_generated
+
+# Psalm
+psalm.xml
+.psalm/
+
+# =============================================================================
+# PHP RUNTIME FILES
+# =============================================================================
+# PHP error logs
+php_errors.log
+error.log
+
+# PHP temporary files
+*.php.bak
+*.php~
+
+# =============================================================================
+# IDE SPECIFIC FOR PHP
+# =============================================================================
+# PhpStorm
+.idea/
+*.iml
+
+# VS Code PHP extensions
+.vscode/settings.json
+.vscode/launch.json
+
+# =============================================================================
+# OS AND EDITOR FILES
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# =============================================================================
+# ENVIRONMENT AND CONFIG
+# =============================================================================
+.env
+.env.local
+.env.*.local
+
+# =============================================================================
+# GENERATED DOCUMENTATION
+# =============================================================================
+/docs/api/
+/build/docs/
