@@ -208,7 +208,19 @@ var rootCmd = &cobra.Command{
 		if inputFile == "" {
 			inputFile = config.File
 			if inputFile != "" && !filepath.IsAbs(inputFile) {
-				inputFile = filepath.Join(yamlParent, inputFile)
+				// Try standard path resolution first (relative to project root)
+				standardPath := filepath.Join(yamlParent, inputFile)
+				if _, err := os.Stat(standardPath); err == nil {
+					inputFile = standardPath
+				} else {
+					// Fallback: try looking in resources directory for backward compatibility
+					fallbackPath := filepath.Join(filepath.Dir(yamlPath), inputFile)
+					if _, err := os.Stat(fallbackPath); err == nil {
+						inputFile = fallbackPath
+					} else {
+						inputFile = standardPath
+					}
+				}
 			}
 		}
 		if outputFile == "" {

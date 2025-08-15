@@ -156,7 +156,16 @@ async function main() {
   // Handle relative paths and add language suffix
   if (inputFile && !path.isAbsolute(inputFile)) {
     const yamlParent = path.dirname(path.dirname(yamlFile));
-    inputFile = path.join(yamlParent, inputFile);
+    // Try standard path resolution first (relative to project root)
+    const standardPath = path.join(yamlParent, inputFile);
+    if (await fs.access(standardPath).then(() => true).catch(() => false)) {
+      inputFile = standardPath;
+    } else {
+      // Fallback: try looking in resources directory for backward compatibility
+      const fallbackPath = path.join(path.dirname(yamlFile), inputFile);
+      const fallbackExists = await fs.access(fallbackPath).then(() => true).catch(() => false);
+      inputFile = fallbackExists ? fallbackPath : standardPath;
+    }
   }
 
   if (outputFile && !path.isAbsolute(outputFile)) {

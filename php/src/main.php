@@ -31,11 +31,17 @@ $yamlFile = $options['yaml'] ?? $configPath;
 $markdownFile = $options['markdown'] ?? $defaultMarkdown;
 
 // Handle relative paths
-if ($inputFile && is_string($inputFile) && !is_dir(dirname($inputFile))) {
+if ($inputFile && is_string($inputFile) && !str_starts_with($inputFile, '/')) {
     $yamlFileStr = is_string($yamlFile) ? $yamlFile : $configPath;
     $yamlParent = dirname($yamlFileStr, 2);
-    if (!str_starts_with($inputFile, '/')) {
-        $inputFile = $yamlParent . DIRECTORY_SEPARATOR . $inputFile;
+    // Try standard path resolution first (relative to project root)
+    $standardPath = $yamlParent . DIRECTORY_SEPARATOR . $inputFile;
+    if (file_exists($standardPath)) {
+        $inputFile = $standardPath;
+    } else {
+        // Fallback: try looking in resources directory for backward compatibility
+        $fallbackPath = dirname($yamlFileStr) . DIRECTORY_SEPARATOR . $inputFile;
+        $inputFile = file_exists($fallbackPath) ? $fallbackPath : $standardPath;
     }
 }
 
@@ -61,7 +67,6 @@ if (!$inputFile || !$outputFile || !is_string($inputFile) || !is_string($outputF
 
 if (!file_exists($inputFile)) {
     echo "Error: '$inputFile' not found.\n";
-
     exit(1);
 }
 

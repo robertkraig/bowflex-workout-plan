@@ -178,7 +178,20 @@ fn main() -> Result<()> {
             if Path::new(f).is_absolute() {
                 f.clone()
             } else {
-                yaml_parent.join(f).to_string_lossy().to_string()
+                // Try standard path resolution first (relative to project root)
+                let standard_path = yaml_parent.join(f);
+                if standard_path.exists() {
+                    standard_path.to_string_lossy().to_string()
+                } else {
+                    // Fallback: try looking in resources directory for backward compatibility
+                    let yaml_dir = Path::new(&args.yaml).parent().unwrap_or(Path::new("."));
+                    let fallback_path = yaml_dir.join(f);
+                    if fallback_path.exists() {
+                        fallback_path.to_string_lossy().to_string()
+                    } else {
+                        standard_path.to_string_lossy().to_string()
+                    }
+                }
             }
         })
     }).unwrap_or_default();

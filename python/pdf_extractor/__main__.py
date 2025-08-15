@@ -21,8 +21,10 @@ def markdown_to_pdf_bytes(md_path):
         <style>
             body {{ font-family: Helvetica, Arial, sans-serif; margin: 2em; }}
             h1, h2, h3, h4 {{ color: #2a4d7c; }}
-            table {{ border-collapse: collapse; width: 100%; margin-bottom: 1em; }}
-            th, td {{ border: 1px solid #888; padding: 0.5em; text-align: left; }}
+            table {{ border-collapse: collapse; width: 100%%;
+                     margin-bottom: 1em; }}
+            th, td {{ border: 1px solid #888; padding: 0.5em;
+                      text-align: left; }}
             th {{ background: #d5e4f3; }}
             code {{ background: #eee; padding: 2px 4px; border-radius: 4px; }}
             pre {{ background: #f4f4f4; padding: 1em; border-radius: 4px; }}
@@ -156,7 +158,7 @@ if __name__ == "__main__":
             md_file = md_candidates[0]
             print(f"Auto-using markdown file: {md_file}")
 
-    # If --input or --output are not set, use 'file' and 'output' from YAML config
+    # If --input or --output are not set, use 'file' and 'output' from YAML
     input_file = args.input
     output_file = args.output
     if (not input_file or not output_file) or (
@@ -165,12 +167,25 @@ if __name__ == "__main__":
     ):
         with open(args.yaml, "r") as f:
             config = yaml.safe_load(f)
-            # Get the parent directory of the yaml file (should be project root)
+            # Get parent directory of yaml file (should be project root)
             yaml_parent = os.path.dirname(os.path.dirname(args.yaml))
             if not input_file or input_file == parser.get_default("input"):
                 config_input = config.get("file", input_file)
                 if config_input and not os.path.isabs(config_input):
-                    input_file = os.path.join(yaml_parent, config_input)
+                    # Try standard path resolution first (relative to root)
+                    standard_path = os.path.join(yaml_parent, config_input)
+                    if os.path.exists(standard_path):
+                        input_file = standard_path
+                    else:
+                        # Fallback: try resources directory for compatibility
+                        fallback_path = os.path.join(
+                            os.path.dirname(args.yaml), config_input
+                        )
+                        input_file = (
+                            fallback_path
+                            if os.path.exists(fallback_path)
+                            else standard_path
+                        )
                 else:
                     input_file = config_input
             if not output_file or output_file == parser.get_default("output"):

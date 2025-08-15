@@ -1,6 +1,6 @@
 # Multi-Language PDF Page Extractor
 
-This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in multiple programming languages: **Python**, **Rust**, **Go**, **Julia**, **PHP**, and **Node.js**.
+This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in multiple programming languages: **Python**, **Rust**, **Go**, **Julia**, **PHP**, **Node.js**, **Ruby**, and **Elixir**.
 
 ## Language Implementations
 
@@ -10,6 +10,8 @@ This project allows you to extract selected pages from a PDF document and option
 - **`julia/`** - Julia implementation using Poppler and native package manager
 - **`php/`** - PHP implementation using FPDI and Composer
 - **`nodejs/`** - Node.js implementation using pdf-lib and npm
+- **`ruby/`** - Ruby implementation using pdftk and Bundler
+- **`elixir/`** - Elixir implementation using pdftk and Mix
 
 All implementations share the same resources and output directories, and use the same Node.js Puppeteer script for Markdown-to-PDF conversion.
 
@@ -40,6 +42,12 @@ make install-php
 
 # Node.js only
 make install-nodejs
+
+# Ruby only
+make install-ruby
+
+# Elixir only
+make install-elixir
 ```
 
 The setup script installs system dependencies, Python environment, and Node.js dependencies needed for Puppeteer PDF generation.
@@ -72,6 +80,12 @@ make run-php
 
 # Node.js implementation
 make run-nodejs
+
+# Ruby implementation
+make run-ruby
+
+# Elixir implementation
+make run-elixir
 ```
 
 All implementations:
@@ -132,6 +146,12 @@ pages:
 
   # Node.js
   cd nodejs && npm start -- --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Ruby
+  cd ruby && bundle exec ruby main.rb --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Elixir
+  cd elixir && ./pdf_extractor --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
   ```
 
 ## File Locations
@@ -148,7 +168,7 @@ pages:
 - ✅ Automatic duplicate page detection
 - ✅ Support for tables and formatting in markdown
 - ✅ Command-line interface for automation
-- ✅ **Multi-language implementations** (Python, Rust, Go, Julia, PHP, Node.js)
+- ✅ **Multi-language implementations** (Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir)
 - ✅ Shared resources and consistent output across all languages
 
 ## Development
@@ -166,7 +186,9 @@ make lint-all      # Lint code in all languages
 - **Julia**: Uses Pkg, JuliaFormatter, Lint
 - **PHP**: Uses Composer, PHP CodeSniffer, PHPStan
 - **Node.js**: Uses npm, ESLint, Prettier
+- **Ruby**: Uses Bundler, RuboCop, RSpec
+- **Elixir**: Uses Mix, ExDoc, Credo
 
 ---
 
-Choose your preferred language implementation or use this project to compare PDF processing approaches across Python, Rust, Go, Julia, PHP, and Node.js!
+Choose your preferred language implementation or use this project to compare PDF processing approaches across Python, Rust, Go, Julia, PHP, Node.js, Ruby, and Elixir!

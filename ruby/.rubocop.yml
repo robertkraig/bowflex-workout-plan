@@ -1,0 +1,56 @@
+require:
+  - rubocop-performance
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+
+# Layout and Style
+Layout/LineLength:
+  Max: 120
+  AllowedPatterns:
+    - '\s+# .*'
+    - '^\s*#'
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: single_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: nested
+
+# Method definitions
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: aligned
+
+# Allow longer blocks in specs
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+# Allow longer methods for main processing logic
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'lib/pdf_extractor/extractor.rb'
+
+# Performance
+Performance/StringReplacement:
+  Enabled: true
+
+# Disable cops that conflict with Ruby idioms
+Style/GuardClause:
+  MinBodyLength: 3

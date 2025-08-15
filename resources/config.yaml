@@ -1,4 +1,4 @@
-file: resources/BFX.Xceed.Global.OM.EN.pdf
+file: BFX.Xceed.Global.OM.EN.pdf
 output: output/Bowflex_Workout_Booklet.pdf
 appendFirstPage: first_page.md
 pages:

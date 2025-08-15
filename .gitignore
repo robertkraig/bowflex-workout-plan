@@ -88,6 +88,7 @@ php_errors.log
 # =============================================================================
 # NODE.JS (for Puppeteer)
 # =============================================================================
+# Node.js dependencies (keep package-lock.json committed for consistency)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -97,6 +98,37 @@ yarn-error.log*
 # Puppeteer cache
 .cache/
 .puppeteer/
+
+# =============================================================================
+# RUBY
+# =============================================================================
+# Ruby dependencies (keep Gemfile.lock committed for consistency)
+*/vendor/bundle/
+.bundle/
+.ruby-version
+
+# Ruby build artifacts
+*.gem
+*.rbc
+
+# Ruby development tools
+.rubocop-https*
+
+# =============================================================================
+# ELIXIR
+# =============================================================================
+# Elixir build artifacts
+_build/
+deps/
+*.ez
+
+# Elixir development tools
+.mix_tasks
+.elixir_ls/
+.lexical/
+
+# Elixir compiled files (keep mix.lock committed for consistency)
+erl_crash.dump
 
 # =============================================================================
 # IDE AND EDITOR FILES
@@ -121,11 +153,40 @@ ehthumbs.db
 Thumbs.db
 
 # =============================================================================
+# LANGUAGE-SPECIFIC EXECUTABLES
+# =============================================================================
+# Elixir escript
+elixir/pdf_extractor
+
+# Go binaries
+golang/pdf-page-extractor
+
+# Rust binaries
+rust/target/
+
+# =============================================================================
+# DEVELOPMENT DEPENDENCIES THAT MIGHT BE PULLED IN
+# =============================================================================
+# Version manager directories
+.asdf/
+.pyenv/
+.rbenv/
+.nvm/
+
+# Package manager cache directories
+.hex/
+.mix/
+.npm/
+.cache/
+
+# =============================================================================
 # TEMPORARY FILES
 # =============================================================================
 *.tmp
 *.temp
 *.bak
 *.log
+
+# Temporary downloads
+erlang-solutions_*.deb
 resources/BFX.Xceed.Global.OM.EN.pdf
-output

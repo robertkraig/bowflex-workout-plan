@@ -196,7 +196,20 @@ function main()
         if isabspath(config.file)
             input_file = config.file
         else
-            input_file = joinpath(yaml_parent, config.file)
+            # Try standard path resolution first (relative to project root)
+            standard_path = joinpath(yaml_parent, config.file)
+            if isfile(standard_path)
+                input_file = standard_path
+            else
+                # Fallback: try looking in resources directory for backward compatibility
+                yaml_dir = dirname(yaml_path)
+                fallback_path = joinpath(yaml_dir, config.file)
+                if isfile(fallback_path)
+                    input_file = fallback_path
+                else
+                    input_file = standard_path
+                end
+            end
         end
     end
     input_file = something(input_file, "")

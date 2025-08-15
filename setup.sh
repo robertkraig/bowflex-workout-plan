@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Multi-Language PDF Page Extractor Setup Script
-# This script sets up the development environment and dependencies for Python, Rust, Go, Julia, PHP, and Node.js
+# This script sets up the development environment and dependencies for Python, Rust, Go, Julia, PHP, Node.js, Ruby, and Elixir
 # It uses a dirty-bit mechanism to avoid running setup multiple times
 
 set -e  # Exit on any error
@@ -21,7 +21,16 @@ echo "Installing system dependencies..."
 sudo apt install --no-install-recommends make build-essential \
     libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
     wget curl llvm libncursesw5-dev xz-utils tk-dev libxml2-dev \
-    libxmlsec1-dev libffi-dev liblzma-dev git
+    libxmlsec1-dev libffi-dev liblzma-dev git libyaml-dev ruby-dev \
+    autoconf libncurses-dev libgl1-mesa-dev libglu1-mesa-dev \
+    libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils
+
+# Install optional wxWidgets packages for Erlang Observer (GUI tools)
+echo "Installing optional wxWidgets packages for Erlang..."
+sudo apt install --no-install-recommends libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev 2>/dev/null || \
+sudo apt install --no-install-recommends libwxgtk3.2-dev 2>/dev/null || \
+sudo apt install --no-install-recommends libwxbase3.0-dev libwxgtk3.0-dev 2>/dev/null || \
+echo "Warning: wxWidgets packages not found - Erlang Observer GUI will not be available"
 
 # Install pyenv
 echo "Installing pyenv..."
@@ -50,7 +59,7 @@ fi
 
 # Install Go
 echo "Installing Go..."
-if ! command -v go &> /dev/null; then
+if [ ! -d "/usr/local/go" ] && ! command -v go &> /dev/null; then
     GO_VERSION="1.21.5"
     wget -O go.tar.gz "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
     sudo rm -rf /usr/local/go
@@ -119,6 +128,79 @@ else
     echo "npm is already installed"
 fi
 
+# Install rbenv and Ruby
+echo "Installing rbenv and Ruby..."
+if [ ! -d "$HOME/.rbenv" ] && ! command -v rbenv &> /dev/null; then
+    # Install rbenv
+    git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+
+    # Install ruby-build plugin
+    git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+
+    echo "rbenv installed"
+else
+    echo "rbenv is already installed"
+fi
+
+# Install Ruby 3.1.0 and bundler
+if [ -d "$HOME/.rbenv" ]; then
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+
+    # Install Ruby 3.3.9 if not already installed
+    if ! rbenv versions | grep -q "3.3.9"; then
+        echo "Installing Ruby 3.3.9..."
+        rbenv install 3.3.9
+    else
+        echo "Ruby 3.3.9 is already installed"
+    fi
+
+    # Set global Ruby version
+    rbenv global 3.3.9
+    rbenv rehash
+
+    # Install bundler
+    if ! gem list bundler -i &> /dev/null; then
+        echo "Installing bundler..."
+        gem install bundler
+        rbenv rehash
+    else
+        echo "bundler is already installed"
+    fi
+fi
+
+# Install Elixir using Ubuntu packages (faster and more reliable)
+echo "Installing Elixir..."
+if ! command -v elixir &> /dev/null; then
+    # Install Erlang and Elixir from Ubuntu repositories
+    echo "Installing Erlang and Elixir packages from Ubuntu repositories..."
+    sudo apt update
+    sudo apt install -y erlang elixir
+
+    # Install Hex package manager
+    echo "Installing Hex package manager..."
+    mix local.hex --force
+
+    # Install Rebar3 build tool
+    echo "Installing Rebar3..."
+    mix local.rebar --force
+
+    echo "Elixir installation completed"
+else
+    echo "Elixir is already installed"
+
+    # Ensure Hex and Rebar3 are installed
+    if ! mix help hex &> /dev/null; then
+        echo "Installing Hex package manager..."
+        mix local.hex --force
+    fi
+
+    if ! mix help rebar &> /dev/null; then
+        echo "Installing Rebar3..."
+        mix local.rebar --force
+    fi
+fi
+
 # Set up environment variables
 echo "Setting up environment variables..."
 
@@ -132,10 +214,12 @@ else
    touch "$SHELL_RC"
 fi
 
-# Configure pyenv for zsh and bash appropriately
+# Configure each environment independently for both zsh and bash
 if [ "$SHELL_RC" = "$HOME/.zshrc" ]; then
-   # Ensure pyenv is initialized in zshrc (interactive shells)
-   if ! grep -Fq 'eval "$(pyenv init -)"' "$SHELL_RC" && ! grep -Fq 'eval "$(pyenv init -)"' "$HOME/.zshrc"; then
+   # ZSH Configuration - check each environment separately
+
+   # Python/pyenv configuration
+   if ! grep -Fq 'pyenv init -' "$HOME/.zshrc"; then
 cat >> "$HOME/.zshrc" <<'ZSHRC_PYENV'
 
 # pyenv configuration (zsh)
@@ -144,30 +228,13 @@ export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init -)"
 export PATH="$HOME/.local/bin:$PATH"
 
-# Rust configuration
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Go configuration
-export PATH="/usr/local/go/bin:$PATH"
-export GOPATH="$HOME/go"
-export PATH="$GOPATH/bin:$PATH"
-
-# Julia configuration
-export PATH="/usr/local/bin:$PATH"
-
-# PHP configuration
-export PATH="$HOME/.composer/vendor/bin:$PATH"
-
-# Node.js configuration
-export PATH="$HOME/.local/lib/nodejs/bin:$PATH"
-
 ZSHRC_PYENV
    fi
 
    # For zsh login shells, ensure pyenv --path is in .zprofile
    ZPROFILE="$HOME/.zprofile"
    [ -f "$ZPROFILE" ] || touch "$ZPROFILE"
-   if ! grep -Fq 'eval "$(pyenv init --path)"' "$ZPROFILE"; then
+   if ! grep -Fq 'pyenv init --path' "$ZPROFILE"; then
 cat >> "$ZPROFILE" <<'ZPROFILE_PYENV'
 
 # pyenv in PATH for zsh login shells
@@ -177,9 +244,85 @@ eval "$(pyenv init --path)"
 
 ZPROFILE_PYENV
    fi
+
+   # Rust configuration
+   if ! grep -Fq '.cargo/bin' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_RUST'
+
+# Rust configuration
+export PATH="$HOME/.cargo/bin:$PATH"
+
+ZSHRC_RUST
+   fi
+
+   # Go configuration
+   if ! grep -Fq '/usr/local/go/bin' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_GO'
+
+# Go configuration
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+ZSHRC_GO
+   fi
+
+   # Julia configuration
+   if ! grep -Fq 'Julia configuration' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_JULIA'
+
+# Julia configuration
+export PATH="/usr/local/bin:$PATH"
+
+ZSHRC_JULIA
+   fi
+
+   # PHP configuration
+   if ! grep -Fq '.composer/vendor/bin' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_PHP'
+
+# PHP configuration
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+ZSHRC_PHP
+   fi
+
+   # Node.js configuration
+   if ! grep -Fq '.local/lib/nodejs/bin' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_NODEJS'
+
+# Node.js configuration
+export PATH="$HOME/.local/lib/nodejs/bin:$PATH"
+
+ZSHRC_NODEJS
+   fi
+
+   # Ruby configuration
+   if ! grep -Fq 'rbenv init' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_RUBY'
+
+# Ruby configuration
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init - zsh)"
+
+ZSHRC_RUBY
+   fi
+
+   # Elixir configuration (installed via system packages)
+   if ! grep -Fq 'Elixir is installed via system packages' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_ELIXIR'
+
+# Elixir configuration (installed via system packages)
+# Elixir is installed via system packages and should be in PATH
+
+ZSHRC_ELIXIR
+   fi
+
 else
-   # Bash fallback: add pyenv init to bashrc
-   if ! grep -Fq 'export PYENV_ROOT="$HOME/.pyenv"' "$SHELL_RC"; then
+   # BASH Configuration - check each environment separately
+
+   # Python/pyenv configuration
+   if ! grep -Fq 'pyenv init -' "$SHELL_RC"; then
 cat >> "$SHELL_RC" <<'BASHRC_PYENV'
 
 # pyenv configuration (bash)
@@ -189,25 +332,82 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 export PATH="$HOME/.local/bin:$PATH"
 
+BASHRC_PYENV
+   fi
+
+   # Rust configuration
+   if ! grep -Fq '.cargo/bin' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_RUST'
+
 # Rust configuration
 export PATH="$HOME/.cargo/bin:$PATH"
+
+BASHRC_RUST
+   fi
+
+   # Go configuration
+   if ! grep -Fq '/usr/local/go/bin' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_GO'
 
 # Go configuration
 export PATH="/usr/local/go/bin:$PATH"
 export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$PATH"
 
+BASHRC_GO
+   fi
+
+   # Julia configuration
+   if ! grep -Fq 'Julia configuration' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_JULIA'
+
 # Julia configuration
 export PATH="/usr/local/bin:$PATH"
+
+BASHRC_JULIA
+   fi
+
+   # PHP configuration
+   if ! grep -Fq '.composer/vendor/bin' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_PHP'
 
 # PHP configuration
 export PATH="$HOME/.composer/vendor/bin:$PATH"
 
+BASHRC_PHP
+   fi
+
+   # Node.js configuration
+   if ! grep -Fq '.local/lib/nodejs/bin' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_NODEJS'
+
 # Node.js configuration
 export PATH="$HOME/.local/lib/nodejs/bin:$PATH"
 
-BASHRC_PYENV
+BASHRC_NODEJS
    fi
+
+   # Ruby configuration
+   if ! grep -Fq 'rbenv init' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_RUBY'
+
+# Ruby configuration
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init - bash)"
+
+BASHRC_RUBY
+   fi
+
+   # Elixir configuration (installed via system packages)
+   if ! grep -Fq 'Elixir is installed via system packages' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_ELIXIR'
+
+# Elixir configuration (installed via system packages)
+# Elixir is installed via system packages and should be in PATH
+
+BASHRC_ELIXIR
+   fi
+
 fi
 
 # Install Delta for enhanced Git diffs
@@ -272,6 +472,8 @@ echo "  ✅ Go 1.21.5"
 echo "  ✅ Julia 1.10.0"
 echo "  ✅ PHP with Composer"
 echo "  ✅ Node.js with npm and Puppeteer dependencies"
+echo "  ✅ Ruby with rbenv"
+echo "  ✅ Elixir with asdf"
 echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
 echo ""
@@ -282,5 +484,7 @@ echo "  make run-golang    # Run Go implementation"
 echo "  make run-julia     # Run Julia implementation"
 echo "  make run-php       # Run PHP implementation"
 echo "  make run-nodejs    # Run Node.js implementation"
+echo "  make run-ruby      # Run Ruby implementation"
+echo "  make run-elixir    # Run Elixir implementation"
 echo ""
 echo "To reset and re-run setup in the future, delete the '$SETUP_MARKER' file and run this script again."

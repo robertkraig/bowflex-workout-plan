@@ -1,7 +1,7 @@
 # Multi-language PDF Page Extractor Makefile
 
-.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-all
-.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs clean-all format-all lint-all
+.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-all
+.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir clean-all format-all lint-all
 
 # Default target
 help:
@@ -14,6 +14,8 @@ help:
 	@echo "  install-julia    - Install Julia dependencies"
 	@echo "  install-php      - Install PHP dependencies"
 	@echo "  install-nodejs   - Install Node.js dependencies"
+	@echo "  install-ruby     - Install Ruby dependencies"
+	@echo "  install-elixir   - Install Elixir dependencies"
 	@echo "  install-all      - Install all language dependencies"
 	@echo ""
 	@echo "  run-python       - Run Python implementation"
@@ -22,6 +24,8 @@ help:
 	@echo "  run-julia        - Run Julia implementation"
 	@echo "  run-php          - Run PHP implementation"
 	@echo "  run-nodejs       - Run Node.js implementation"
+	@echo "  run-ruby         - Run Ruby implementation"
+	@echo "  run-elixir       - Run Elixir implementation"
 	@echo ""
 	@echo "  clean-all        - Clean all build artifacts"
 	@echo "  format-all       - Format code in all languages"
@@ -54,7 +58,21 @@ install-nodejs:
 		echo "Skipping Node.js installation - Node.js or npm not found"; \
 	fi
 
-install-all: install-python install-rust install-golang install-julia install-php install-nodejs
+install-ruby:
+	@if command -v ruby >/dev/null 2>&1 && command -v bundle >/dev/null 2>&1; then \
+		cd ruby && $(MAKE) install; \
+	else \
+		echo "Skipping Ruby installation - Ruby or Bundler not found"; \
+	fi
+
+install-elixir:
+	@if command -v mix >/dev/null 2>&1; then \
+		cd elixir && $(MAKE) install; \
+	else \
+		echo "Skipping Elixir installation - Elixir or Mix not found"; \
+	fi
+
+install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir
 	npm ci
 
 # Run targets
@@ -84,6 +102,20 @@ run-nodejs:
 		echo "Node.js not found - cannot run Node.js implementation"; \
 	fi
 
+run-ruby:
+	@if command -v ruby >/dev/null 2>&1; then \
+		cd ruby && $(MAKE) run; \
+	else \
+		echo "Ruby not found - cannot run Ruby implementation"; \
+	fi
+
+run-elixir:
+	@if command -v mix >/dev/null 2>&1; then \
+		cd elixir && $(MAKE) run; \
+	else \
+		echo "Elixir not found - cannot run Elixir implementation"; \
+	fi
+
 # Maintenance targets
 clean-all:
 	cd python && $(MAKE) clean
@@ -92,6 +124,8 @@ clean-all:
 	cd julia && $(MAKE) clean
 	@if [ -d php ]; then cd php && $(MAKE) clean; fi
 	@if [ -d nodejs ]; then cd nodejs && $(MAKE) clean; fi
+	@if [ -d ruby ]; then cd ruby && $(MAKE) clean; fi
+	@if [ -d elixir ]; then cd elixir && $(MAKE) clean; fi
 	rm -rf output/*.pdf
 
 format-all:
@@ -101,6 +135,8 @@ format-all:
 	cd julia && $(MAKE) format
 	@if command -v php >/dev/null 2>&1 && [ -d php ]; then cd php && $(MAKE) format; fi
 	@if command -v node >/dev/null 2>&1 && [ -d nodejs ]; then cd nodejs && $(MAKE) format; fi
+	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) format; fi
+	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) format; fi
 
 lint-all:
 	cd python && $(MAKE) lint
@@ -109,3 +145,5 @@ lint-all:
 	cd julia && $(MAKE) lint
 	@if command -v php >/dev/null 2>&1 && [ -d php ]; then cd php && $(MAKE) lint; fi
 	@if command -v node >/dev/null 2>&1 && [ -d nodejs ]; then cd nodejs && $(MAKE) lint; fi
+	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) lint; fi
+	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) lint; fi
