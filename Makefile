@@ -1,7 +1,7 @@
 # Multi-language PDF Page Extractor Makefile
 
-.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-all
-.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir clean-all format-all lint-all
+.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-all
+.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-all clean-all format-all lint-all precommit-format
 
 # Default target
 help:
@@ -16,6 +16,7 @@ help:
 	@echo "  install-nodejs   - Install Node.js dependencies"
 	@echo "  install-ruby     - Install Ruby dependencies"
 	@echo "  install-elixir   - Install Elixir dependencies"
+	@echo "  install-scala    - Install Scala dependencies"
 	@echo "  install-all      - Install all language dependencies"
 	@echo ""
 	@echo "  run-python       - Run Python implementation"
@@ -26,10 +27,13 @@ help:
 	@echo "  run-nodejs       - Run Node.js implementation"
 	@echo "  run-ruby         - Run Ruby implementation"
 	@echo "  run-elixir       - Run Elixir implementation"
+	@echo "  run-scala        - Run Scala implementation"
+	@echo "  run-all          - Run all language implementations in sequence"
 	@echo ""
 	@echo "  clean-all        - Clean all build artifacts"
 	@echo "  format-all       - Format code in all languages"
 	@echo "  lint-all         - Lint code in all languages"
+	@echo "  precommit-format - Run pre-commit hooks to auto-format files"
 
 # Installation targets
 install-python:
@@ -72,7 +76,14 @@ install-elixir:
 		echo "Skipping Elixir installation - Elixir or Mix not found"; \
 	fi
 
-install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir
+install-scala:
+	@if command -v sbt >/dev/null 2>&1; then \
+		cd scala && $(MAKE) install; \
+	else \
+		echo "Skipping Scala installation - SBT not found"; \
+	fi
+
+install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala
 	npm ci
 
 # Run targets
@@ -116,6 +127,47 @@ run-elixir:
 		echo "Elixir not found - cannot run Elixir implementation"; \
 	fi
 
+run-scala:
+	@if command -v sbt >/dev/null 2>&1; then \
+		cd scala && $(MAKE) run; \
+	else \
+		echo "SBT not found - cannot run Scala implementation"; \
+	fi
+
+run-all:
+	@echo "🚀 Running all language implementations in sequence..."
+	@echo "=================================================="
+	@echo "1/9 - Running Python implementation..."
+	@$(MAKE) run-python || echo "❌ Python implementation failed"
+	@echo ""
+	@echo "2/9 - Running Rust implementation..."
+	@$(MAKE) run-rust || echo "❌ Rust implementation failed"
+	@echo ""
+	@echo "3/9 - Running Go implementation..."
+	@$(MAKE) run-golang || echo "❌ Go implementation failed"
+	@echo ""
+	@echo "4/9 - Running Julia implementation..."
+	@$(MAKE) run-julia || echo "❌ Julia implementation failed"
+	@echo ""
+	@echo "5/9 - Running PHP implementation..."
+	@$(MAKE) run-php || echo "❌ PHP implementation failed"
+	@echo ""
+	@echo "6/9 - Running Node.js implementation..."
+	@$(MAKE) run-nodejs || echo "❌ Node.js implementation failed"
+	@echo ""
+	@echo "7/9 - Running Ruby implementation..."
+	@$(MAKE) run-ruby || echo "❌ Ruby implementation failed"
+	@echo ""
+	@echo "8/9 - Running Elixir implementation..."
+	@$(MAKE) run-elixir || echo "❌ Elixir implementation failed"
+	@echo ""
+	@echo "9/9 - Running Scala implementation..."
+	@$(MAKE) run-scala || echo "❌ Scala implementation failed"
+	@echo ""
+	@echo "✅ All language implementations completed!"
+	@echo "=================================================="
+	@echo "Check the output/ directory for generated PDFs with language-specific suffixes"
+
 # Maintenance targets
 clean-all:
 	cd python && $(MAKE) clean
@@ -126,6 +178,7 @@ clean-all:
 	@if [ -d nodejs ]; then cd nodejs && $(MAKE) clean; fi
 	@if [ -d ruby ]; then cd ruby && $(MAKE) clean; fi
 	@if [ -d elixir ]; then cd elixir && $(MAKE) clean; fi
+	@if [ -d scala ]; then cd scala && $(MAKE) clean; fi
 	rm -rf output/*.pdf
 
 format-all:
@@ -137,6 +190,7 @@ format-all:
 	@if command -v node >/dev/null 2>&1 && [ -d nodejs ]; then cd nodejs && $(MAKE) format; fi
 	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) format; fi
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) format; fi
+	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) format; fi
 
 lint-all:
 	cd python && $(MAKE) lint
@@ -147,3 +201,12 @@ lint-all:
 	@if command -v node >/dev/null 2>&1 && [ -d nodejs ]; then cd nodejs && $(MAKE) lint; fi
 	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) lint; fi
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) lint; fi
+	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) lint; fi
+
+# Pre-commit formatting target
+precommit-format:
+	@if command -v pre-commit >/dev/null 2>&1; then \
+		pre-commit run --all-files; \
+	else \
+		echo "pre-commit not found - install with 'pip install pre-commit'"; \
+	fi

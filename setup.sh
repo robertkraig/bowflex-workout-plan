@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Multi-Language PDF Page Extractor Setup Script
-# This script sets up the development environment and dependencies for Python, Rust, Go, Julia, PHP, Node.js, Ruby, and Elixir
+# This script sets up the development environment and dependencies for Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, and Scala
 # It uses a dirty-bit mechanism to avoid running setup multiple times
 
 set -e  # Exit on any error
@@ -201,6 +201,21 @@ else
     fi
 fi
 
+# Install Scala and SBT
+echo "Installing Scala and SBT..."
+if ! command -v sbt &> /dev/null; then
+    # Install SBT from official repository
+    echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+    echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add -
+    sudo apt update
+    sudo apt install -y sbt
+
+    echo "SBT installation completed"
+else
+    echo "SBT is already installed"
+fi
+
 # Set up environment variables
 echo "Setting up environment variables..."
 
@@ -318,6 +333,16 @@ cat >> "$HOME/.zshrc" <<'ZSHRC_ELIXIR'
 ZSHRC_ELIXIR
    fi
 
+   # Scala/SBT configuration
+   if ! grep -Fq 'SBT configuration' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_SCALA'
+
+# SBT configuration
+export PATH="$HOME/.sbt/1.0/bin:$PATH"
+
+ZSHRC_SCALA
+   fi
+
 else
    # BASH Configuration - check each environment separately
 
@@ -408,6 +433,16 @@ cat >> "$SHELL_RC" <<'BASHRC_ELIXIR'
 BASHRC_ELIXIR
    fi
 
+   # Scala/SBT configuration
+   if ! grep -Fq 'SBT configuration' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_SCALA'
+
+# SBT configuration
+export PATH="$HOME/.sbt/1.0/bin:$PATH"
+
+BASHRC_SCALA
+   fi
+
 fi
 
 # Install Delta for enhanced Git diffs
@@ -453,6 +488,11 @@ git config --global diff.colorMoved default
 # Source environment to make sure new tools are available
 source "$SHELL_RC" 2>/dev/null || true
 
+# Install pre-commit for code quality hooks
+echo "Installing pre-commit for code quality hooks..."
+pip install pre-commit
+pre-commit install
+
 # Install dependencies for all languages
 echo "Installing dependencies for all languages..."
 export PATH="/usr/local/go/bin:$PATH"
@@ -473,7 +513,9 @@ echo "  ✅ Julia 1.10.0"
 echo "  ✅ PHP with Composer"
 echo "  ✅ Node.js with npm and Puppeteer dependencies"
 echo "  ✅ Ruby with rbenv"
-echo "  ✅ Elixir with asdf"
+echo "  ✅ Elixir with hex and rebar3"
+echo "  ✅ Scala with SBT"
+echo "  ✅ Pre-commit hooks for code quality"
 echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
 echo ""
@@ -486,5 +528,6 @@ echo "  make run-php       # Run PHP implementation"
 echo "  make run-nodejs    # Run Node.js implementation"
 echo "  make run-ruby      # Run Ruby implementation"
 echo "  make run-elixir    # Run Elixir implementation"
+echo "  make run-scala     # Run Scala implementation"
 echo ""
 echo "To reset and re-run setup in the future, delete the '$SETUP_MARKER' file and run this script again."

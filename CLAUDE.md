@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a multi-language PDF page extractor that implements the same functionality across 8 programming languages: Python, Rust, Go, Julia, PHP, Node.js, Ruby, and Elixir. All implementations extract specified pages from PDF documents and optionally prepend Markdown files as styled introductions.
+This is a multi-language PDF page extractor that implements the same functionality across 9 programming languages: Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, and Scala. All implementations extract specified pages from PDF documents and optionally prepend Markdown files as styled introductions.
 
 ## Key Architecture Components
 
@@ -19,7 +19,7 @@ This is a multi-language PDF page extractor that implements the same functionali
 - Pages are extracted using external tools (pdftk, PDF libraries) then merged with optional Markdown introductions
 
 **Language Implementation Pattern:**
-Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, etc.) follows the same structure:
+Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, `scala/`, etc.) follows the same structure:
 - `Makefile` with consistent targets: `install`, `run`, `clean`, `lint`, `format`
 - Main executable that accepts CLI args: `--input`, `--output`, `--yaml`, `--markdown`
 - Package manager configuration (composer.json, package.json, Cargo.toml, etc.)
@@ -31,13 +31,13 @@ Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, etc.) f
 ```bash
 ./setup.sh              # Install system dependencies and Python environment
 make install-all         # Install dependencies for all languages
-make install-<lang>      # Install for specific language (python, php, rust, ruby, elixir, etc.)
+make install-<lang>      # Install for specific language (python, php, rust, ruby, elixir, scala, etc.)
 ```
 
 **Running Implementations:**
 ```bash
 make run-<lang>          # Run specific language implementation
-# Available: run-python, run-php, run-rust, run-golang, run-julia, run-nodejs, run-ruby, run-elixir
+# Available: run-python, run-php, run-rust, run-golang, run-julia, run-nodejs, run-ruby, run-elixir, run-scala
 ```
 
 **Code Quality and Maintenance:**
@@ -162,6 +162,37 @@ The Elixir implementation follows functional programming principles and OTP conv
 - ExDoc for documentation generation
 - Mix format for automatic code formatting
 
+## Scala Implementation Details
+
+The Scala implementation follows functional programming principles and leverages the JVM ecosystem:
+
+**Module Structure:**
+- `PdfExtractor` object with main method and CLI parsing using scopt
+- Case classes for `Config`, `PageConfig`, and `CliArgs` for type-safe configuration
+- Functional approach with immutable data structures and error handling
+
+**SBT Build Configuration:**
+- Uses SBT (Scala Build Tool) for dependency management and compilation
+- sbt-assembly plugin for creating fat JARs with all dependencies
+- Scala 2.13.12 for modern language features and performance
+
+**External Tool Integration:**
+- Uses `pdftk` for PDF page extraction via Scala's `sys.process` API
+- Proper error handling with `Try` and exception management
+- Shell command execution with secure argument handling
+
+**Scala Idioms:**
+- Case classes for data modeling with automatic equals/hashCode
+- Pattern matching for control flow and error handling
+- `Using` for automatic resource management (file handles)
+- Immutable collections throughout the codebase
+- Functional composition with `map`, `flatMap`, and `filter`
+
+**Quality Tooling:**
+- SBT for build automation and dependency resolution
+- ScalaStyle for code style enforcement (when configured)
+- Assembly plugin for creating standalone executable JARs
+
 ## Pre-commit Hooks
 
 The repository uses pre-commit hooks (`.pre-commit-config.yaml`) that automatically:
@@ -185,6 +216,7 @@ All package manager lock files are committed for reproducible builds:
 - `poetry.lock` (Python)
 - `Gemfile.lock` (Ruby)
 - `mix.lock` (Elixir)
+- SBT lock files and `target/` directory (Scala)
 
 ## Configuration Files
 
@@ -199,6 +231,8 @@ All package manager lock files are committed for reproducible builds:
 - `ruby/.rubocop.yml` - Ruby style guide enforcement with performance and RSpec extensions
 - `.pre-commit-config.yaml` - Repository-wide code quality enforcement
 - `elixir/.formatter.exs` - Elixir code formatting configuration with custom rules
+- `scala/build.sbt` - SBT build configuration with dependencies and assembly settings
+- `scala/project/plugins.sbt` - SBT plugins including assembly for fat JAR creation
 
 ## Common Issues and Solutions
 
@@ -216,3 +250,6 @@ PHP, Ruby, and Elixir implementations demonstrate proper external tool integrati
 
 **Elixir Dependencies:**
 If you see Mix-related errors, run `mix deps.get` in the `elixir/` directory. Use `mix deps` to check dependency status.
+
+**Scala/SBT Issues:**
+If you see SBT-related errors, run `sbt compile` in the `scala/` directory to download dependencies and compile. Use `sbt clean` to clear build cache if needed.
