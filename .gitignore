@@ -153,6 +153,21 @@ ehthumbs.db
 Thumbs.db
 
 # =============================================================================
+# KOTLIN/GRADLE
+# =============================================================================
+# Gradle build artifacts
+kotlin/.gradle/
+kotlin/build/
+kotlin/gradle.properties
+kotlin/gradlew
+kotlin/gradlew.bat
+kotlin/gradle/wrapper/gradle-wrapper.jar
+kotlin/gradle/wrapper/gradle-wrapper.properties
+
+# Kotlin compiled classes
+*.class
+
+# =============================================================================
 # LANGUAGE-SPECIFIC EXECUTABLES
 # =============================================================================
 # Elixir escript

@@ -1,7 +1,7 @@
 # Multi-language PDF Page Extractor Makefile
 
-.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet install-all
-.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-java run-dotnet run-all clean-all format-all lint-all precommit-format
+.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet install-kotlin install-all
+.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-java run-dotnet run-kotlin run-all clean-all format-all lint-all precommit-format
 
 # Default target
 help:
@@ -19,6 +19,7 @@ help:
 	@echo "  install-scala    - Install Scala dependencies"
 	@echo "  install-java     - Install Java dependencies"
 	@echo "  install-dotnet   - Install .NET Core dependencies"
+	@echo "  install-kotlin   - Install Kotlin dependencies"
 	@echo "  install-all      - Install all language dependencies"
 	@echo ""
 	@echo "  run-python       - Run Python implementation"
@@ -32,6 +33,7 @@ help:
 	@echo "  run-scala        - Run Scala implementation"
 	@echo "  run-java         - Run Java implementation"
 	@echo "  run-dotnet       - Run .NET Core implementation"
+	@echo "  run-kotlin       - Run Kotlin implementation"
 	@echo "  run-all          - Run all language implementations in sequence"
 	@echo ""
 	@echo "  clean-all        - Clean all build artifacts"
@@ -105,7 +107,19 @@ install-dotnet:
 		echo "Skipping .NET Core installation - .NET Core SDK not found"; \
 	fi
 
-install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet
+install-kotlin:
+	@if [ -f ~/.sdkman/bin/sdkman-init.sh ]; then \
+		source ~/.sdkman/bin/sdkman-init.sh && \
+		if command -v gradle >/dev/null 2>&1; then \
+			cd kotlin && $(MAKE) install; \
+		else \
+			echo "Skipping Kotlin installation - Gradle not found"; \
+		fi; \
+	else \
+		echo "Skipping Kotlin installation - SDKMAN not found"; \
+	fi
+
+install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet install-kotlin
 	npm ci
 
 # Run targets
@@ -174,41 +188,56 @@ run-dotnet:
 		echo ".NET Core SDK not found - cannot run .NET Core implementation"; \
 	fi
 
+run-kotlin:
+	@if [ -f ~/.sdkman/bin/sdkman-init.sh ]; then \
+		bash -c "source ~/.sdkman/bin/sdkman-init.sh && \
+		if command -v gradle >/dev/null 2>&1; then \
+			cd kotlin && $(MAKE) run; \
+		else \
+			echo 'Gradle not found - cannot run Kotlin implementation'; \
+		fi"; \
+	else \
+		echo "SDKMAN not found - cannot run Kotlin implementation"; \
+	fi
+
 run-all:
 	@echo "🚀 Running all language implementations in sequence..."
 	@echo "=================================================="
-	@echo "1/11 - Running Python implementation..."
+	@echo "1/12 - Running Python implementation..."
 	@$(MAKE) run-python || echo "❌ Python implementation failed"
 	@echo ""
-	@echo "2/11 - Running Rust implementation..."
+	@echo "2/12 - Running Rust implementation..."
 	@$(MAKE) run-rust || echo "❌ Rust implementation failed"
 	@echo ""
-	@echo "3/11 - Running Go implementation..."
+	@echo "3/12 - Running Go implementation..."
 	@$(MAKE) run-golang || echo "❌ Go implementation failed"
 	@echo ""
-	@echo "4/11 - Running Julia implementation..."
+	@echo "4/12 - Running Julia implementation..."
 	@$(MAKE) run-julia || echo "❌ Julia implementation failed"
 	@echo ""
-	@echo "5/11 - Running PHP implementation..."
+	@echo "5/12 - Running PHP implementation..."
 	@$(MAKE) run-php || echo "❌ PHP implementation failed"
 	@echo ""
-	@echo "6/11 - Running Node.js implementation..."
+	@echo "6/12 - Running Node.js implementation..."
 	@$(MAKE) run-nodejs || echo "❌ Node.js implementation failed"
 	@echo ""
-	@echo "7/11 - Running Ruby implementation..."
+	@echo "7/12 - Running Ruby implementation..."
 	@$(MAKE) run-ruby || echo "❌ Ruby implementation failed"
 	@echo ""
-	@echo "8/11 - Running Elixir implementation..."
+	@echo "8/12 - Running Elixir implementation..."
 	@$(MAKE) run-elixir || echo "❌ Elixir implementation failed"
 	@echo ""
-	@echo "9/11 - Running Scala implementation..."
+	@echo "9/12 - Running Scala implementation..."
 	@$(MAKE) run-scala || echo "❌ Scala implementation failed"
 	@echo ""
-	@echo "10/11 - Running Java implementation..."
+	@echo "10/12 - Running Java implementation..."
 	@$(MAKE) run-java || echo "❌ Java implementation failed"
 	@echo ""
-	@echo "11/11 - Running .NET Core implementation..."
+	@echo "11/12 - Running .NET Core implementation..."
 	@$(MAKE) run-dotnet || echo "❌ .NET Core implementation failed"
+	@echo ""
+	@echo "12/12 - Running Kotlin implementation..."
+	@$(MAKE) run-kotlin || echo "❌ Kotlin implementation failed"
 	@echo ""
 	@echo "✅ All language implementations completed!"
 	@echo "=================================================="
@@ -227,6 +256,7 @@ clean-all:
 	@if [ -d scala ]; then cd scala && $(MAKE) clean; fi
 	@if [ -d java ]; then cd java && $(MAKE) clean; fi
 	@if [ -d dotnet ]; then cd dotnet && $(MAKE) clean; fi
+	@if [ -d kotlin ]; then cd kotlin && $(MAKE) clean; fi
 	rm -rf output/*.pdf
 
 format-all:
@@ -241,6 +271,7 @@ format-all:
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) format; fi
 	@if command -v mvn >/dev/null 2>&1 && [ -d java ]; then cd java && $(MAKE) format; fi
 	@if command -v dotnet >/dev/null 2>&1 && [ -d dotnet ]; then cd dotnet && $(MAKE) format; fi
+	@if [ -f ~/.sdkman/bin/sdkman-init.sh ] && [ -d kotlin ]; then source ~/.sdkman/bin/sdkman-init.sh && cd kotlin && $(MAKE) format; fi
 
 lint-all:
 	cd python && $(MAKE) lint
@@ -254,6 +285,7 @@ lint-all:
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) lint; fi
 	@if command -v mvn >/dev/null 2>&1 && [ -d java ]; then cd java && $(MAKE) lint; fi
 	@if command -v dotnet >/dev/null 2>&1 && [ -d dotnet ]; then cd dotnet && $(MAKE) lint; fi
+	@if [ -f ~/.sdkman/bin/sdkman-init.sh ] && [ -d kotlin ]; then source ~/.sdkman/bin/sdkman-init.sh && cd kotlin && $(MAKE) lint; fi
 
 # Pre-commit formatting target
 precommit-format:

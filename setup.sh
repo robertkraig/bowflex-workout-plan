@@ -249,12 +249,18 @@ fi
 
 # Install Java and Maven
 echo "Installing Java and Maven..."
-if ! command -v java &> /dev/null; then
+if ! command -v java &> /dev/null || ! command -v javac &> /dev/null; then
     sudo apt update
-    sudo apt install -y default-jdk
+    sudo apt install -y default-jdk openjdk-21-jdk
     echo "Java installation completed"
 else
     echo "Java is already installed ($(java -version 2>&1 | head -n1))"
+    # Check if javac is missing and install JDK if needed
+    if ! command -v javac &> /dev/null; then
+        echo "Java compiler (javac) not found - installing JDK..."
+        sudo apt update
+        sudo apt install -y default-jdk openjdk-21-jdk
+    fi
 fi
 
 if ! command -v mvn &> /dev/null; then
@@ -278,6 +284,42 @@ if ! command -v dotnet &> /dev/null; then
     echo ".NET Core SDK installation completed"
 else
     echo ".NET Core SDK is already installed ($(dotnet --version 2>/dev/null || echo 'version detection failed'))"
+fi
+
+# Install Kotlin and Gradle via SDKMAN!
+echo "Installing Kotlin and Gradle via SDKMAN!..."
+if ! command -v kotlin &> /dev/null || ! command -v gradle &> /dev/null; then
+    # Install SDKMAN! for Kotlin and Gradle installation
+    if [ ! -d "$HOME/.sdkman" ]; then
+        echo "Installing SDKMAN!..."
+        curl -s "https://get.sdkman.io" | bash
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+    else
+        echo "SDKMAN! is already installed"
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+    fi
+
+    # Install Kotlin if not present
+    if ! command -v kotlin &> /dev/null; then
+        echo "Installing Kotlin..."
+        sdk install kotlin
+    else
+        echo "Kotlin is already installed"
+    fi
+
+    # Install Gradle if not present
+    if ! command -v gradle &> /dev/null; then
+        echo "Installing Gradle..."
+        sdk install gradle
+    else
+        echo "Gradle is already installed"
+    fi
+
+    echo "Kotlin and Gradle installation completed"
+else
+    echo "Kotlin and Gradle are already installed"
+    echo "  Kotlin: $(kotlin -version 2>&1 | head -n1)"
+    echo "  Gradle: $(gradle --version 2>&1 | head -n1)"
 fi
 
 # Set up environment variables
@@ -429,6 +471,17 @@ export PATH="$DOTNET_ROOT:$PATH"
 ZSHRC_DOTNET
    fi
 
+   # Kotlin configuration
+   if ! grep -Fq 'SDKMAN configuration' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_KOTLIN'
+
+# SDKMAN configuration
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+ZSHRC_KOTLIN
+   fi
+
 else
    # BASH Configuration - check each environment separately
 
@@ -551,6 +604,17 @@ export PATH="$DOTNET_ROOT:$PATH"
 BASHRC_DOTNET
    fi
 
+   # Kotlin configuration
+   if ! grep -Fq 'SDKMAN configuration' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_KOTLIN'
+
+# SDKMAN configuration
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+BASHRC_KOTLIN
+   fi
+
 fi
 
 # Install Delta for enhanced Git diffs
@@ -625,6 +689,7 @@ echo "  ✅ Elixir with hex and rebar3"
 echo "  ✅ Scala with SBT"
 echo "  ✅ Java with Maven (auto-detected version)"
 echo "  ✅ .NET Core SDK 8.0"
+echo "  ✅ Kotlin and Gradle via SDKMAN!"
 echo "  ✅ Pre-commit hooks for code quality"
 echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
@@ -641,6 +706,7 @@ echo "  make run-elixir    # Run Elixir implementation"
 echo "  make run-scala     # Run Scala implementation"
 echo "  make run-java      # Run Java implementation"
 echo "  make run-dotnet    # Run .NET Core implementation"
+echo "  make run-kotlin    # Run Kotlin implementation"
 echo ""
 echo "To re-run setup in the future:"
 echo "  ./setup.sh -f      # Force re-run without deleting marker file"
