@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  pdf-extractor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multi-lang-pdf-extractor
+    volumes:
+      # Mount source code for development
+      - .:/app
+      # Persist output directory
+      - ./output:/app/output
+      # Preserve dependencies to avoid reinstalling
+      - pdf-extractor-node-modules:/app/node_modules
+      - pdf-extractor-cargo:/root/.cargo
+      - pdf-extractor-go:/root/go
+    working_dir: /app
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+volumes:
+  pdf-extractor-node-modules:
+  pdf-extractor-cargo:
+  pdf-extractor-go:

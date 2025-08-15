@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a multi-language PDF page extractor that implements the same functionality across 10 programming languages: Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, Scala, and Java. All implementations extract specified pages from PDF documents and optionally prepend Markdown files as styled introductions.
+This is a multi-language PDF page extractor that implements the same functionality across 11 programming languages: Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, Scala, Java, and .NET Core. All implementations extract specified pages from PDF documents and optionally prepend Markdown files as styled introductions.
 
 ## Key Architecture Components
 
@@ -19,7 +19,7 @@ This is a multi-language PDF page extractor that implements the same functionali
 - Pages are extracted using external tools (pdftk, PDF libraries) then merged with optional Markdown introductions
 
 **Language Implementation Pattern:**
-Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, `scala/`, `java/`, etc.) follows the same structure:
+Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, `scala/`, `java/`, `dotnet/`, etc.) follows the same structure:
 - `Makefile` with consistent targets: `install`, `run`, `clean`, `lint`, `format`
 - Main executable that accepts CLI args: `--input`, `--output`, `--yaml`, `--markdown`
 - Package manager configuration (composer.json, package.json, Cargo.toml, pom.xml, etc.)
@@ -41,13 +41,13 @@ When adding new languages, use the Go implementation as the architectural templa
 ```bash
 ./setup.sh              # Install system dependencies and Python environment
 make install-all         # Install dependencies for all languages
-make install-<lang>      # Install for specific language (python, php, rust, ruby, elixir, scala, java, etc.)
+make install-<lang>      # Install for specific language (python, php, rust, ruby, elixir, scala, java, dotnet, etc.)
 ```
 
 **Running Implementations:**
 ```bash
 make run-<lang>          # Run specific language implementation
-# Available: run-python, run-php, run-rust, run-golang, run-julia, run-nodejs, run-ruby, run-elixir, run-scala, run-java
+# Available: run-python, run-php, run-rust, run-golang, run-julia, run-nodejs, run-ruby, run-elixir, run-scala, run-java, run-dotnet
 ```
 
 **Code Quality and Maintenance:**
@@ -233,6 +233,39 @@ The Java implementation follows object-oriented principles while maintaining the
 - Maven for dependency management and compilation
 - Maven compiler plugin with Java 21 target
 - exec-maven-plugin for easy application execution
+
+## .NET Core Implementation Details
+
+The .NET Core implementation follows C# idioms and modern .NET patterns while maintaining the same simple approach as the Go reference:
+
+**Build Configuration:**
+- Uses .NET 8.0 SDK with C# 12 language features
+- Dependencies: CommandLineParser for CLI arguments, YamlDotNet for YAML parsing, Markdig for Markdown processing
+- Project file (`.csproj`) with nullable reference types enabled and implicit usings
+
+**Main Class Structure:**
+- `Program` class with static `Main` method following .NET conventions
+- Separate `Config` and `PageConfig` classes for YAML deserialization
+- Command-line options defined with `CommandLineParser` attributes
+- Direct process execution using `Process` class for pdftk integration
+
+**External Tool Integration:**
+- Uses `Process` class for executing pdftk and Node.js commands with proper error handling
+- Temporary file management using `Path.GetTempFileName()` with automatic cleanup
+- Process exit code validation and comprehensive exception handling
+
+**.NET Idioms:**
+- Nullable reference types for improved null safety
+- `using` statements for automatic resource disposal
+- LINQ for collection transformations and filtering
+- Modern C# language features like string interpolation and pattern matching
+- Proper async/await patterns where applicable
+
+**Quality Tooling:**
+- `dotnet restore` for dependency management
+- `dotnet format` for code formatting with EditorConfig support
+- `dotnet build` with static analysis and compiler warnings as errors
+- Built-in MSBuild for compilation and packaging
 
 ## Pre-commit Hooks
 

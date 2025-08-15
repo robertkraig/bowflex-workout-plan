@@ -1,7 +1,7 @@
 # Multi-language PDF Page Extractor Makefile
 
-.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-all
-.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-java run-all clean-all format-all lint-all precommit-format
+.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet install-all
+.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-java run-dotnet run-all clean-all format-all lint-all precommit-format
 
 # Default target
 help:
@@ -18,6 +18,7 @@ help:
 	@echo "  install-elixir   - Install Elixir dependencies"
 	@echo "  install-scala    - Install Scala dependencies"
 	@echo "  install-java     - Install Java dependencies"
+	@echo "  install-dotnet   - Install .NET Core dependencies"
 	@echo "  install-all      - Install all language dependencies"
 	@echo ""
 	@echo "  run-python       - Run Python implementation"
@@ -30,6 +31,7 @@ help:
 	@echo "  run-elixir       - Run Elixir implementation"
 	@echo "  run-scala        - Run Scala implementation"
 	@echo "  run-java         - Run Java implementation"
+	@echo "  run-dotnet       - Run .NET Core implementation"
 	@echo "  run-all          - Run all language implementations in sequence"
 	@echo ""
 	@echo "  clean-all        - Clean all build artifacts"
@@ -96,7 +98,14 @@ install-java:
 		echo "Skipping Java installation - Maven not found"; \
 	fi
 
-install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java
+install-dotnet:
+	@if command -v dotnet >/dev/null 2>&1; then \
+		cd dotnet && $(MAKE) install; \
+	else \
+		echo "Skipping .NET Core installation - .NET Core SDK not found"; \
+	fi
+
+install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet
 	npm ci
 
 # Run targets
@@ -158,38 +167,48 @@ run-java:
 		echo "Maven not found - cannot run Java implementation"; \
 	fi
 
+run-dotnet:
+	@if command -v dotnet >/dev/null 2>&1; then \
+		cd dotnet && $(MAKE) run; \
+	else \
+		echo ".NET Core SDK not found - cannot run .NET Core implementation"; \
+	fi
+
 run-all:
 	@echo "🚀 Running all language implementations in sequence..."
 	@echo "=================================================="
-	@echo "1/10 - Running Python implementation..."
+	@echo "1/11 - Running Python implementation..."
 	@$(MAKE) run-python || echo "❌ Python implementation failed"
 	@echo ""
-	@echo "2/10 - Running Rust implementation..."
+	@echo "2/11 - Running Rust implementation..."
 	@$(MAKE) run-rust || echo "❌ Rust implementation failed"
 	@echo ""
-	@echo "3/10 - Running Go implementation..."
+	@echo "3/11 - Running Go implementation..."
 	@$(MAKE) run-golang || echo "❌ Go implementation failed"
 	@echo ""
-	@echo "4/10 - Running Julia implementation..."
+	@echo "4/11 - Running Julia implementation..."
 	@$(MAKE) run-julia || echo "❌ Julia implementation failed"
 	@echo ""
-	@echo "5/10 - Running PHP implementation..."
+	@echo "5/11 - Running PHP implementation..."
 	@$(MAKE) run-php || echo "❌ PHP implementation failed"
 	@echo ""
-	@echo "6/10 - Running Node.js implementation..."
+	@echo "6/11 - Running Node.js implementation..."
 	@$(MAKE) run-nodejs || echo "❌ Node.js implementation failed"
 	@echo ""
-	@echo "7/10 - Running Ruby implementation..."
+	@echo "7/11 - Running Ruby implementation..."
 	@$(MAKE) run-ruby || echo "❌ Ruby implementation failed"
 	@echo ""
-	@echo "8/10 - Running Elixir implementation..."
+	@echo "8/11 - Running Elixir implementation..."
 	@$(MAKE) run-elixir || echo "❌ Elixir implementation failed"
 	@echo ""
-	@echo "9/10 - Running Scala implementation..."
+	@echo "9/11 - Running Scala implementation..."
 	@$(MAKE) run-scala || echo "❌ Scala implementation failed"
 	@echo ""
-	@echo "10/10 - Running Java implementation..."
+	@echo "10/11 - Running Java implementation..."
 	@$(MAKE) run-java || echo "❌ Java implementation failed"
+	@echo ""
+	@echo "11/11 - Running .NET Core implementation..."
+	@$(MAKE) run-dotnet || echo "❌ .NET Core implementation failed"
 	@echo ""
 	@echo "✅ All language implementations completed!"
 	@echo "=================================================="
@@ -207,6 +226,7 @@ clean-all:
 	@if [ -d elixir ]; then cd elixir && $(MAKE) clean; fi
 	@if [ -d scala ]; then cd scala && $(MAKE) clean; fi
 	@if [ -d java ]; then cd java && $(MAKE) clean; fi
+	@if [ -d dotnet ]; then cd dotnet && $(MAKE) clean; fi
 	rm -rf output/*.pdf
 
 format-all:
@@ -220,6 +240,7 @@ format-all:
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) format; fi
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) format; fi
 	@if command -v mvn >/dev/null 2>&1 && [ -d java ]; then cd java && $(MAKE) format; fi
+	@if command -v dotnet >/dev/null 2>&1 && [ -d dotnet ]; then cd dotnet && $(MAKE) format; fi
 
 lint-all:
 	cd python && $(MAKE) lint
@@ -232,6 +253,7 @@ lint-all:
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) lint; fi
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) lint; fi
 	@if command -v mvn >/dev/null 2>&1 && [ -d java ]; then cd java && $(MAKE) lint; fi
+	@if command -v dotnet >/dev/null 2>&1 && [ -d dotnet ]; then cd dotnet && $(MAKE) lint; fi
 
 # Pre-commit formatting target
 precommit-format:

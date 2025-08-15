@@ -264,6 +264,22 @@ else
     echo "Maven is already installed"
 fi
 
+# Install .NET Core SDK
+echo "Installing .NET Core SDK..."
+if ! command -v dotnet &> /dev/null; then
+    # Download Microsoft package repository configuration
+    wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+    sudo dpkg -i packages-microsoft-prod.deb
+    rm packages-microsoft-prod.deb
+
+    # Install .NET SDK
+    sudo apt update
+    sudo apt install -y dotnet-sdk-8.0
+    echo ".NET Core SDK installation completed"
+else
+    echo ".NET Core SDK is already installed ($(dotnet --version 2>/dev/null || echo 'version detection failed'))"
+fi
+
 # Set up environment variables
 echo "Setting up environment variables..."
 
@@ -402,6 +418,17 @@ export PATH="$JAVA_HOME/bin:$PATH"
 ZSHRC_JAVA
    fi
 
+   # .NET Core configuration
+   if ! grep -Fq '.NET Core configuration' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_DOTNET'
+
+# .NET Core configuration
+export DOTNET_ROOT="/usr/share/dotnet"
+export PATH="$DOTNET_ROOT:$PATH"
+
+ZSHRC_DOTNET
+   fi
+
 else
    # BASH Configuration - check each environment separately
 
@@ -513,6 +540,17 @@ export PATH="$JAVA_HOME/bin:$PATH"
 BASHRC_JAVA
    fi
 
+   # .NET Core configuration
+   if ! grep -Fq '.NET Core configuration' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_DOTNET'
+
+# .NET Core configuration
+export DOTNET_ROOT="/usr/share/dotnet"
+export PATH="$DOTNET_ROOT:$PATH"
+
+BASHRC_DOTNET
+   fi
+
 fi
 
 # Install Delta for enhanced Git diffs
@@ -586,6 +624,7 @@ echo "  ✅ Ruby with rbenv"
 echo "  ✅ Elixir with hex and rebar3"
 echo "  ✅ Scala with SBT"
 echo "  ✅ Java with Maven (auto-detected version)"
+echo "  ✅ .NET Core SDK 8.0"
 echo "  ✅ Pre-commit hooks for code quality"
 echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
@@ -601,6 +640,7 @@ echo "  make run-ruby      # Run Ruby implementation"
 echo "  make run-elixir    # Run Elixir implementation"
 echo "  make run-scala     # Run Scala implementation"
 echo "  make run-java      # Run Java implementation"
+echo "  make run-dotnet    # Run .NET Core implementation"
 echo ""
 echo "To re-run setup in the future:"
 echo "  ./setup.sh -f      # Force re-run without deleting marker file"
