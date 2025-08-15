@@ -1,10 +1,10 @@
 # Multi-Language PDF Page Extractor
 
-This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in multiple programming languages: **Python**, **Rust**, **Go**, **Julia**, **PHP**, **Node.js**, **Ruby**, and **Elixir**.
+This project allows you to extract selected pages from a PDF document and optionally prepend a Markdown file as an introduction. The same functionality is implemented in **12 programming languages**: Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, Scala, Java, .NET Core, and Kotlin.
 
 ## Language Implementations
 
-- **`python/`** - Original Python implementation using PyPDF2 and Poetry
+- **`python/`** - Python implementation using PyPDF2 and Poetry
 - **`rust/`** - Rust implementation using lopdf and Cargo
 - **`golang/`** - Go implementation using unipdf and Go modules
 - **`julia/`** - Julia implementation using Poppler and native package manager
@@ -12,45 +12,62 @@ This project allows you to extract selected pages from a PDF document and option
 - **`nodejs/`** - Node.js implementation using pdf-lib and npm
 - **`ruby/`** - Ruby implementation using pdftk and Bundler
 - **`elixir/`** - Elixir implementation using pdftk and Mix
+- **`scala/`** - Scala implementation using pdftk and SBT
+- **`java/`** - Java implementation using pdftk and Maven
+- **`dotnet/`** - .NET Core implementation using pdftk and dotnet CLI
+- **`kotlin/`** - Kotlin implementation using pdftk and Gradle
 
 All implementations share the same resources and output directories, and use the same Node.js Puppeteer script for Markdown-to-PDF conversion.
 
 ## Setup
 
-**Quick Setup for All Languages:**
+### Quick Setup for All Languages
+
 ```sh
-./setup.sh          # Install system dependencies and Python environment
-make install-all    # Install dependencies for all languages
+./setup.sh          # Install system dependencies and all language toolchains
 ```
 
-**Language-Specific Setup:**
+This will automatically:
+- Install system dependencies (build tools, libraries, etc.)
+- Install Node.js and npm (required for Puppeteer)
+- Run language-specific setup scripts for all 12 languages
+- Install dependencies for all languages
+
+### Language-Specific Setup
+
+Each language has its own setup script that can be run independently:
+
 ```sh
-# Python only
-make install-python
-
-# Rust only
-make install-rust
-
-# Go only
-make install-golang
-
-# Julia only
-make install-julia
-
-# PHP only
-make install-php
-
-# Node.js only
-make install-nodejs
-
-# Ruby only
-make install-ruby
-
-# Elixir only
-make install-elixir
+# Individual language setup
+cd python && ./setup.sh
+cd rust && ./setup.sh
+cd golang && ./setup.sh
+cd julia && ./setup.sh
+cd php && ./setup.sh
+cd ruby && ./setup.sh
+cd elixir && ./setup.sh
+cd scala && ./setup.sh
+cd java && ./setup.sh
+cd dotnet && ./setup.sh
+cd kotlin && ./setup.sh
 ```
 
-The setup script installs system dependencies, Python environment, and Node.js dependencies needed for Puppeteer PDF generation.
+**Language-Specific Installation via Makefile:**
+```sh
+make install-python    # Python with pyenv and Poetry
+make install-rust      # Rust with rustup and Cargo
+make install-golang    # Go 1.21.5
+make install-julia     # Julia 1.10.0
+make install-php       # PHP with Composer
+make install-nodejs    # Node.js with npm
+make install-ruby      # Ruby with rbenv
+make install-elixir    # Elixir with hex and rebar3
+make install-scala     # Scala with SBT
+make install-java      # Java with Maven
+make install-dotnet    # .NET Core SDK 8.0
+make install-kotlin    # Kotlin and Gradle via SDKMAN!
+make install-all       # Install all languages
+```
 
 ## Usage
 
@@ -86,6 +103,18 @@ make run-ruby
 
 # Elixir implementation
 make run-elixir
+
+# Scala implementation
+make run-scala
+
+# Java implementation
+make run-java
+
+# .NET Core implementation
+make run-dotnet
+
+# Kotlin implementation
+make run-kotlin
 ```
 
 All implementations:
@@ -152,6 +181,18 @@ pages:
 
   # Elixir
   cd elixir && ./pdf_extractor --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Scala
+  cd scala && sbt "run --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>"
+
+  # Java
+  cd java && mvn exec:java -Dexec.args="--input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>"
+
+  # .NET Core
+  cd dotnet && dotnet run -- --input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>
+
+  # Kotlin
+  cd kotlin && gradle run --args="--input <your.pdf> --output <output.pdf> --yaml <your.yaml> --markdown <your.md>"
   ```
 
 ## File Locations
@@ -168,8 +209,10 @@ pages:
 - ✅ Automatic duplicate page detection
 - ✅ Support for tables and formatting in markdown
 - ✅ Command-line interface for automation
-- ✅ **Multi-language implementations** (Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir)
+- ✅ **12 language implementations** (Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, Scala, Java, .NET Core, Kotlin)
 - ✅ Shared resources and consistent output across all languages
+- ✅ Modular setup with individual language setup scripts
+- ✅ Cross-platform support (Linux, macOS, Windows)
 
 ## Development
 
@@ -179,16 +222,38 @@ make format-all    # Format code in all languages
 make lint-all      # Lint code in all languages
 ```
 
-**Language-specific development:**
-- **Python**: Uses Poetry, Black, isort, flake8
-- **Rust**: Uses Cargo, rustfmt, clippy
-- **Go**: Uses go fmt, go vet
-- **Julia**: Uses Pkg, JuliaFormatter, Lint
-- **PHP**: Uses Composer, PHP CodeSniffer, PHPStan
-- **Node.js**: Uses npm, ESLint, Prettier
-- **Ruby**: Uses Bundler, RuboCop, RSpec
-- **Elixir**: Uses Mix, ExDoc, Credo
+**Language-specific development tools:**
+- **Python**: Poetry, Black, isort, flake8
+- **Rust**: Cargo, rustfmt, clippy
+- **Go**: go fmt, go vet
+- **Julia**: Pkg, JuliaFormatter, Lint
+- **PHP**: Composer, PHP CodeSniffer, PHPStan, PHP-CS-Fixer
+- **Node.js**: npm, ESLint, Prettier
+- **Ruby**: Bundler, RuboCop, RSpec
+- **Elixir**: Mix, ExDoc, Credo
+- **Scala**: SBT, ScalaStyle, Assembly plugin
+- **Java**: Maven, exec plugin
+- **Dotnet**: dotnet CLI, EditorConfig
+- **Kotlin**: Gradle, SDKMAN!
+
+## Architecture
+
+### Modular Setup System
+Each language has its own `setup.sh` script in its directory, allowing for:
+- Independent language setup and maintenance
+- Isolated dependency management
+- Easier troubleshooting and development
+- Parallel development across languages
+
+### Shared Resources Architecture
+- All language implementations share the same `resources/` directory for input files
+- All implementations output to the same `output/` directory with language-specific suffixes
+- Markdown-to-PDF conversion is centralized through a shared Node.js Puppeteer script
+- Configuration is unified through YAML files
+
+### Reference Implementation
+The Go implementation (`golang/main.go`) serves as the simplest and most straightforward reference for creating new language implementations.
 
 ---
 
-Choose your preferred language implementation or use this project to compare PDF processing approaches across Python, Rust, Go, Julia, PHP, Node.js, Ruby, and Elixir!
+Choose your preferred language implementation or use this project to compare PDF processing approaches across **12 different programming languages**!

@@ -109,12 +109,12 @@ install-dotnet:
 
 install-kotlin:
 	@if [ -f ~/.sdkman/bin/sdkman-init.sh ]; then \
-		source ~/.sdkman/bin/sdkman-init.sh && \
+		bash -c "source ~/.sdkman/bin/sdkman-init.sh && \
 		if command -v gradle >/dev/null 2>&1; then \
 			cd kotlin && $(MAKE) install; \
 		else \
-			echo "Skipping Kotlin installation - Gradle not found"; \
-		fi; \
+			echo 'Skipping Kotlin installation - Gradle not found'; \
+		fi"; \
 	else \
 		echo "Skipping Kotlin installation - SDKMAN not found"; \
 	fi
