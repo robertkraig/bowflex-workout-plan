@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a multi-language PDF page extractor that implements the same functionality across 9 programming languages: Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, and Scala. All implementations extract specified pages from PDF documents and optionally prepend Markdown files as styled introductions.
+This is a multi-language PDF page extractor that implements the same functionality across 10 programming languages: Python, Rust, Go, Julia, PHP, Node.js, Ruby, Elixir, Scala, and Java. All implementations extract specified pages from PDF documents and optionally prepend Markdown files as styled introductions.
 
 ## Key Architecture Components
 
@@ -19,11 +19,21 @@ This is a multi-language PDF page extractor that implements the same functionali
 - Pages are extracted using external tools (pdftk, PDF libraries) then merged with optional Markdown introductions
 
 **Language Implementation Pattern:**
-Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, `scala/`, etc.) follows the same structure:
+Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, `scala/`, `java/`, etc.) follows the same structure:
 - `Makefile` with consistent targets: `install`, `run`, `clean`, `lint`, `format`
 - Main executable that accepts CLI args: `--input`, `--output`, `--yaml`, `--markdown`
-- Package manager configuration (composer.json, package.json, Cargo.toml, etc.)
+- Package manager configuration (composer.json, package.json, Cargo.toml, pom.xml, etc.)
 - Language-specific tooling for linting and formatting
+
+**Reference Implementation (Go):**
+The Go implementation (`golang/main.go`) serves as the simplest and most straightforward reference for creating new language implementations. It demonstrates:
+- Clean, procedural code structure without complex abstractions
+- Direct use of external tools (pdftk) via command execution
+- Simple CLI argument parsing with cobra
+- Minimal dependencies and straightforward error handling
+- Clear separation between markdown-to-PDF conversion and page extraction logic
+
+When adding new languages, use the Go implementation as the architectural template.
 
 ## Development Commands
 
@@ -31,13 +41,13 @@ Each language directory (`python/`, `php/`, `rust/`, `ruby/`, `elixir/`, `scala/
 ```bash
 ./setup.sh              # Install system dependencies and Python environment
 make install-all         # Install dependencies for all languages
-make install-<lang>      # Install for specific language (python, php, rust, ruby, elixir, scala, etc.)
+make install-<lang>      # Install for specific language (python, php, rust, ruby, elixir, scala, java, etc.)
 ```
 
 **Running Implementations:**
 ```bash
 make run-<lang>          # Run specific language implementation
-# Available: run-python, run-php, run-rust, run-golang, run-julia, run-nodejs, run-ruby, run-elixir, run-scala
+# Available: run-python, run-php, run-rust, run-golang, run-julia, run-nodejs, run-ruby, run-elixir, run-scala, run-java
 ```
 
 **Code Quality and Maintenance:**
@@ -193,6 +203,37 @@ The Scala implementation follows functional programming principles and leverages
 - ScalaStyle for code style enforcement (when configured)
 - Assembly plugin for creating standalone executable JARs
 
+## Java Implementation Details
+
+The Java implementation follows object-oriented principles while maintaining the same simple approach as the Go reference:
+
+**Build Configuration:**
+- Uses Maven as the build tool with Java 21 as the target version
+- Dependencies: SnakeYAML for YAML parsing, Commons CLI for command-line arguments, Flexmark for Markdown processing
+- `exec-maven-plugin` for running the application directly with Maven
+
+**Main Class Structure:**
+- `PdfExtractor` class with static `main` method following traditional Java patterns
+- Nested static classes `Config` and `PageConfig` for YAML deserialization
+- Direct process execution using `ProcessBuilder` for pdftk integration
+
+**External Tool Integration:**
+- Uses `ProcessBuilder` for executing pdftk commands with proper error handling
+- Temporary file management using `Files.createTempFile()` with automatic cleanup
+- Process exit code validation and proper exception propagation
+
+**Java Idioms:**
+- Package structure following `com.workoutplan.pdfextractor` convention
+- Use of `Path` and `Files` APIs from java.nio for modern file handling
+- Stream API for list transformations and filtering
+- Try-with-resources pattern for automatic resource management
+- Exception handling with checked exceptions properly declared
+
+**Quality Tooling:**
+- Maven for dependency management and compilation
+- Maven compiler plugin with Java 21 target
+- exec-maven-plugin for easy application execution
+
 ## Pre-commit Hooks
 
 The repository uses pre-commit hooks (`.pre-commit-config.yaml`) that automatically:
@@ -217,6 +258,7 @@ All package manager lock files are committed for reproducible builds:
 - `Gemfile.lock` (Ruby)
 - `mix.lock` (Elixir)
 - SBT lock files and `target/` directory (Scala)
+- Maven dependencies resolved in `target/` directory (Java)
 
 ## Configuration Files
 

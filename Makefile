@@ -1,7 +1,7 @@
 # Multi-language PDF Page Extractor Makefile
 
-.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-all
-.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-all clean-all format-all lint-all precommit-format
+.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-all
+.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-java run-all clean-all format-all lint-all precommit-format
 
 # Default target
 help:
@@ -17,6 +17,7 @@ help:
 	@echo "  install-ruby     - Install Ruby dependencies"
 	@echo "  install-elixir   - Install Elixir dependencies"
 	@echo "  install-scala    - Install Scala dependencies"
+	@echo "  install-java     - Install Java dependencies"
 	@echo "  install-all      - Install all language dependencies"
 	@echo ""
 	@echo "  run-python       - Run Python implementation"
@@ -28,6 +29,7 @@ help:
 	@echo "  run-ruby         - Run Ruby implementation"
 	@echo "  run-elixir       - Run Elixir implementation"
 	@echo "  run-scala        - Run Scala implementation"
+	@echo "  run-java         - Run Java implementation"
 	@echo "  run-all          - Run all language implementations in sequence"
 	@echo ""
 	@echo "  clean-all        - Clean all build artifacts"
@@ -83,7 +85,18 @@ install-scala:
 		echo "Skipping Scala installation - SBT not found"; \
 	fi
 
-install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala
+install-java:
+	@if command -v mvn >/dev/null 2>&1; then \
+		if command -v java >/dev/null 2>&1; then \
+			cd java && $(MAKE) install; \
+		else \
+			echo "Skipping Java installation - Java not found"; \
+		fi; \
+	else \
+		echo "Skipping Java installation - Maven not found"; \
+	fi
+
+install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java
 	npm ci
 
 # Run targets
@@ -134,35 +147,49 @@ run-scala:
 		echo "SBT not found - cannot run Scala implementation"; \
 	fi
 
+run-java:
+	@if command -v mvn >/dev/null 2>&1; then \
+		if command -v java >/dev/null 2>&1; then \
+			cd java && $(MAKE) run; \
+		else \
+			echo "Java not found - cannot run Java implementation"; \
+		fi; \
+	else \
+		echo "Maven not found - cannot run Java implementation"; \
+	fi
+
 run-all:
 	@echo "🚀 Running all language implementations in sequence..."
 	@echo "=================================================="
-	@echo "1/9 - Running Python implementation..."
+	@echo "1/10 - Running Python implementation..."
 	@$(MAKE) run-python || echo "❌ Python implementation failed"
 	@echo ""
-	@echo "2/9 - Running Rust implementation..."
+	@echo "2/10 - Running Rust implementation..."
 	@$(MAKE) run-rust || echo "❌ Rust implementation failed"
 	@echo ""
-	@echo "3/9 - Running Go implementation..."
+	@echo "3/10 - Running Go implementation..."
 	@$(MAKE) run-golang || echo "❌ Go implementation failed"
 	@echo ""
-	@echo "4/9 - Running Julia implementation..."
+	@echo "4/10 - Running Julia implementation..."
 	@$(MAKE) run-julia || echo "❌ Julia implementation failed"
 	@echo ""
-	@echo "5/9 - Running PHP implementation..."
+	@echo "5/10 - Running PHP implementation..."
 	@$(MAKE) run-php || echo "❌ PHP implementation failed"
 	@echo ""
-	@echo "6/9 - Running Node.js implementation..."
+	@echo "6/10 - Running Node.js implementation..."
 	@$(MAKE) run-nodejs || echo "❌ Node.js implementation failed"
 	@echo ""
-	@echo "7/9 - Running Ruby implementation..."
+	@echo "7/10 - Running Ruby implementation..."
 	@$(MAKE) run-ruby || echo "❌ Ruby implementation failed"
 	@echo ""
-	@echo "8/9 - Running Elixir implementation..."
+	@echo "8/10 - Running Elixir implementation..."
 	@$(MAKE) run-elixir || echo "❌ Elixir implementation failed"
 	@echo ""
-	@echo "9/9 - Running Scala implementation..."
+	@echo "9/10 - Running Scala implementation..."
 	@$(MAKE) run-scala || echo "❌ Scala implementation failed"
+	@echo ""
+	@echo "10/10 - Running Java implementation..."
+	@$(MAKE) run-java || echo "❌ Java implementation failed"
 	@echo ""
 	@echo "✅ All language implementations completed!"
 	@echo "=================================================="
@@ -179,6 +206,7 @@ clean-all:
 	@if [ -d ruby ]; then cd ruby && $(MAKE) clean; fi
 	@if [ -d elixir ]; then cd elixir && $(MAKE) clean; fi
 	@if [ -d scala ]; then cd scala && $(MAKE) clean; fi
+	@if [ -d java ]; then cd java && $(MAKE) clean; fi
 	rm -rf output/*.pdf
 
 format-all:
@@ -191,6 +219,7 @@ format-all:
 	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) format; fi
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) format; fi
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) format; fi
+	@if command -v mvn >/dev/null 2>&1 && [ -d java ]; then cd java && $(MAKE) format; fi
 
 lint-all:
 	cd python && $(MAKE) lint
@@ -202,6 +231,7 @@ lint-all:
 	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) lint; fi
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) lint; fi
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) lint; fi
+	@if command -v mvn >/dev/null 2>&1 && [ -d java ]; then cd java && $(MAKE) lint; fi
 
 # Pre-commit formatting target
 precommit-format:

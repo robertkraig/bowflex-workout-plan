@@ -7,11 +7,42 @@
 set -e  # Exit on any error
 
 SETUP_MARKER=".setup_complete"
+FORCE_SETUP=false
 
-# Check if setup has already been completed
-if [ -f "$SETUP_MARKER" ]; then
-    echo "Setup has already been completed. If you need to re-run setup, delete the '$SETUP_MARKER' file."
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -f|--force)
+            FORCE_SETUP=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  -f, --force    Force re-run setup even if already completed"
+            echo "  -h, --help     Show this help message"
+            echo ""
+            echo "This script sets up the development environment for all supported languages."
+            echo "By default, it will skip setup if the '$SETUP_MARKER' file exists."
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use -h or --help for usage information."
+            exit 1
+            ;;
+    esac
+done
+
+# Check if setup has already been completed (unless force flag is used)
+if [ -f "$SETUP_MARKER" ] && [ "$FORCE_SETUP" = false ]; then
+    echo "Setup has already been completed. Use -f or --force flag to re-run setup."
     exit 0
+fi
+
+if [ "$FORCE_SETUP" = true ]; then
+    echo "Force flag detected - re-running setup..."
 fi
 
 echo "Starting Multi-Language PDF Page Extractor setup..."
@@ -216,6 +247,23 @@ else
     echo "SBT is already installed"
 fi
 
+# Install Java and Maven
+echo "Installing Java and Maven..."
+if ! command -v java &> /dev/null; then
+    sudo apt update
+    sudo apt install -y default-jdk
+    echo "Java installation completed"
+else
+    echo "Java is already installed ($(java -version 2>&1 | head -n1))"
+fi
+
+if ! command -v mvn &> /dev/null; then
+    sudo apt install -y maven
+    echo "Maven installation completed"
+else
+    echo "Maven is already installed"
+fi
+
 # Set up environment variables
 echo "Setting up environment variables..."
 
@@ -343,6 +391,17 @@ export PATH="$HOME/.sbt/1.0/bin:$PATH"
 ZSHRC_SCALA
    fi
 
+   # Java/Maven configuration
+   if ! grep -Fq 'Java configuration' "$HOME/.zshrc"; then
+cat >> "$HOME/.zshrc" <<'ZSHRC_JAVA'
+
+# Java configuration
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))) 2>/dev/null || echo "/usr/lib/jvm/default-java")
+export PATH="$JAVA_HOME/bin:$PATH"
+
+ZSHRC_JAVA
+   fi
+
 else
    # BASH Configuration - check each environment separately
 
@@ -443,6 +502,17 @@ export PATH="$HOME/.sbt/1.0/bin:$PATH"
 BASHRC_SCALA
    fi
 
+   # Java/Maven configuration
+   if ! grep -Fq 'Java configuration' "$SHELL_RC"; then
+cat >> "$SHELL_RC" <<'BASHRC_JAVA'
+
+# Java configuration
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))) 2>/dev/null || echo "/usr/lib/jvm/default-java")
+export PATH="$JAVA_HOME/bin:$PATH"
+
+BASHRC_JAVA
+   fi
+
 fi
 
 # Install Delta for enhanced Git diffs
@@ -515,6 +585,7 @@ echo "  ✅ Node.js with npm and Puppeteer dependencies"
 echo "  ✅ Ruby with rbenv"
 echo "  ✅ Elixir with hex and rebar3"
 echo "  ✅ Scala with SBT"
+echo "  ✅ Java with Maven (auto-detected version)"
 echo "  ✅ Pre-commit hooks for code quality"
 echo ""
 echo "You may need to restart your shell or run 'source ~/.bashrc' (or ~/.zshrc) to ensure all environment variables are loaded."
@@ -529,5 +600,10 @@ echo "  make run-nodejs    # Run Node.js implementation"
 echo "  make run-ruby      # Run Ruby implementation"
 echo "  make run-elixir    # Run Elixir implementation"
 echo "  make run-scala     # Run Scala implementation"
+echo "  make run-java      # Run Java implementation"
 echo ""
-echo "To reset and re-run setup in the future, delete the '$SETUP_MARKER' file and run this script again."
+echo "To re-run setup in the future:"
+echo "  ./setup.sh -f      # Force re-run without deleting marker file"
+echo "  ./setup.sh --help  # Show help message"
+echo ""
+echo "Alternatively, delete the '$SETUP_MARKER' file and run this script again."
