@@ -1,7 +1,7 @@
 # Multi-language PDF Page Extractor Makefile
 
-.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet install-kotlin install-all
-.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-ruby run-elixir run-scala run-java run-dotnet run-kotlin run-all clean-all format-all lint-all precommit-format
+.PHONY: help install-python install-rust install-golang install-julia install-php install-nodejs install-node-ts install-ruby install-elixir install-scala install-java install-dotnet install-kotlin install-all
+.PHONY: run-python run-rust run-golang run-julia run-php run-nodejs run-node-ts run-ruby run-elixir run-scala run-java run-dotnet run-kotlin run-all clean-all format-all lint-all precommit-format
 
 # Default target
 help:
@@ -14,6 +14,7 @@ help:
 	@echo "  install-julia    - Install Julia dependencies"
 	@echo "  install-php      - Install PHP dependencies"
 	@echo "  install-nodejs   - Install Node.js dependencies"
+	@echo "  install-node-ts  - Install TypeScript dependencies"
 	@echo "  install-ruby     - Install Ruby dependencies"
 	@echo "  install-elixir   - Install Elixir dependencies"
 	@echo "  install-scala    - Install Scala dependencies"
@@ -28,6 +29,7 @@ help:
 	@echo "  run-julia        - Run Julia implementation"
 	@echo "  run-php          - Run PHP implementation"
 	@echo "  run-nodejs       - Run Node.js implementation"
+	@echo "  run-node-ts      - Run TypeScript implementation"
 	@echo "  run-ruby         - Run Ruby implementation"
 	@echo "  run-elixir       - Run Elixir implementation"
 	@echo "  run-scala        - Run Scala implementation"
@@ -66,6 +68,13 @@ install-nodejs:
 		cd nodejs && $(MAKE) install; \
 	else \
 		echo "Skipping Node.js installation - Node.js or npm not found"; \
+	fi
+
+install-node-ts:
+	@if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then \
+		cd node-ts && $(MAKE) install; \
+	else \
+		echo "Skipping TypeScript installation - Node.js or npm not found"; \
 	fi
 
 install-ruby:
@@ -119,7 +128,7 @@ install-kotlin:
 		echo "Skipping Kotlin installation - SDKMAN not found"; \
 	fi
 
-install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-ruby install-elixir install-scala install-java install-dotnet install-kotlin
+install-all: install-python install-rust install-golang install-julia install-php install-nodejs install-node-ts install-ruby install-elixir install-scala install-java install-dotnet install-kotlin
 	npm ci
 
 # Run targets
@@ -147,6 +156,13 @@ run-nodejs:
 		cd nodejs && $(MAKE) run; \
 	else \
 		echo "Node.js not found - cannot run Node.js implementation"; \
+	fi
+
+run-node-ts:
+	@if command -v node >/dev/null 2>&1; then \
+		cd node-ts && $(MAKE) run; \
+	else \
+		echo "Node.js not found - cannot run TypeScript implementation"; \
 	fi
 
 run-ruby:
@@ -203,40 +219,43 @@ run-kotlin:
 run-all:
 	@echo "🚀 Running all language implementations in sequence..."
 	@echo "=================================================="
-	@echo "1/12 - Running Python implementation..."
+	@echo "1/13 - Running Python implementation..."
 	@$(MAKE) run-python || echo "❌ Python implementation failed"
 	@echo ""
-	@echo "2/12 - Running Rust implementation..."
+	@echo "2/13 - Running Rust implementation..."
 	@$(MAKE) run-rust || echo "❌ Rust implementation failed"
 	@echo ""
-	@echo "3/12 - Running Go implementation..."
+	@echo "3/13 - Running Go implementation..."
 	@$(MAKE) run-golang || echo "❌ Go implementation failed"
 	@echo ""
-	@echo "4/12 - Running Julia implementation..."
+	@echo "4/13 - Running Julia implementation..."
 	@$(MAKE) run-julia || echo "❌ Julia implementation failed"
 	@echo ""
-	@echo "5/12 - Running PHP implementation..."
+	@echo "5/13 - Running PHP implementation..."
 	@$(MAKE) run-php || echo "❌ PHP implementation failed"
 	@echo ""
-	@echo "6/12 - Running Node.js implementation..."
+	@echo "6/13 - Running Node.js implementation..."
 	@$(MAKE) run-nodejs || echo "❌ Node.js implementation failed"
 	@echo ""
-	@echo "7/12 - Running Ruby implementation..."
+	@echo "7/13 - Running TypeScript implementation..."
+	@$(MAKE) run-node-ts || echo "❌ TypeScript implementation failed"
+	@echo ""
+	@echo "8/13 - Running Ruby implementation..."
 	@$(MAKE) run-ruby || echo "❌ Ruby implementation failed"
 	@echo ""
-	@echo "8/12 - Running Elixir implementation..."
+	@echo "9/13 - Running Elixir implementation..."
 	@$(MAKE) run-elixir || echo "❌ Elixir implementation failed"
 	@echo ""
-	@echo "9/12 - Running Scala implementation..."
+	@echo "10/13 - Running Scala implementation..."
 	@$(MAKE) run-scala || echo "❌ Scala implementation failed"
 	@echo ""
-	@echo "10/12 - Running Java implementation..."
+	@echo "11/13 - Running Java implementation..."
 	@$(MAKE) run-java || echo "❌ Java implementation failed"
 	@echo ""
-	@echo "11/12 - Running .NET Core implementation..."
+	@echo "12/13 - Running .NET Core implementation..."
 	@$(MAKE) run-dotnet || echo "❌ .NET Core implementation failed"
 	@echo ""
-	@echo "12/12 - Running Kotlin implementation..."
+	@echo "13/13 - Running Kotlin implementation..."
 	@$(MAKE) run-kotlin || echo "❌ Kotlin implementation failed"
 	@echo ""
 	@echo "✅ All language implementations completed!"
@@ -251,6 +270,7 @@ clean-all:
 	cd julia && $(MAKE) clean
 	@if [ -d php ]; then cd php && $(MAKE) clean; fi
 	@if [ -d nodejs ]; then cd nodejs && $(MAKE) clean; fi
+	@if [ -d node-ts ]; then cd node-ts && $(MAKE) clean; fi
 	@if [ -d ruby ]; then cd ruby && $(MAKE) clean; fi
 	@if [ -d elixir ]; then cd elixir && $(MAKE) clean; fi
 	@if [ -d scala ]; then cd scala && $(MAKE) clean; fi
@@ -266,6 +286,7 @@ format-all:
 	cd julia && $(MAKE) format
 	@if command -v php >/dev/null 2>&1 && [ -d php ]; then cd php && $(MAKE) format; fi
 	@if command -v node >/dev/null 2>&1 && [ -d nodejs ]; then cd nodejs && $(MAKE) format; fi
+	@if command -v node >/dev/null 2>&1 && [ -d node-ts ]; then cd node-ts && $(MAKE) format; fi
 	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) format; fi
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) format; fi
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) format; fi
@@ -280,6 +301,7 @@ lint-all:
 	cd julia && $(MAKE) lint
 	@if command -v php >/dev/null 2>&1 && [ -d php ]; then cd php && $(MAKE) lint; fi
 	@if command -v node >/dev/null 2>&1 && [ -d nodejs ]; then cd nodejs && $(MAKE) lint; fi
+	@if command -v node >/dev/null 2>&1 && [ -d node-ts ]; then cd node-ts && $(MAKE) lint; fi
 	@if command -v ruby >/dev/null 2>&1 && [ -d ruby ]; then cd ruby && $(MAKE) lint; fi
 	@if command -v mix >/dev/null 2>&1 && [ -d elixir ]; then cd elixir && $(MAKE) lint; fi
 	@if command -v sbt >/dev/null 2>&1 && [ -d scala ]; then cd scala && $(MAKE) lint; fi
