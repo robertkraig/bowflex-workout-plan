@@ -158,6 +158,7 @@ Thumbs.db
 # Gradle build artifacts
 kotlin/.gradle/
 kotlin/build/
+kotlin/bin/
 kotlin/gradle.properties
 kotlin/gradlew
 kotlin/gradlew.bat
